@@ -25,12 +25,17 @@ class Speaker():
         self.tok = tok
         self.tok.finalize()
         self.listener = listener
-
+        if args.useGlove:
+            glove = np.load(args.GLOVE_PATH)
+            word_embedding_size = 300
+        else:
+            word_embedding_size = args.wemb
+            glove = None
         # Model
         print("VOCAB_SIZE", self.tok.vocab_size())
         self.encoder = model.SpeakerEncoder(self.feature_size+args.angle_feat_size, args.rnn_dim, args.dropout, bidirectional=args.bidir).cuda()
-        self.decoder = model.SpeakerDecoder(self.tok.vocab_size(), args.wemb, self.tok.word_to_index['<PAD>'],
-                                            args.rnn_dim, args.dropout).cuda()
+        self.decoder = model.SpeakerDecoder(self.tok.vocab_size(), word_embedding_size, self.tok.word_to_index['<PAD>'],
+                                            args.rnn_dim, args.dropout, glove=glove).cuda()
         self.encoder_optimizer = args.optimizer(self.encoder.parameters(), lr=args.lr)
         self.decoder_optimizer = args.optimizer(self.decoder.parameters(), lr=args.lr)
 
@@ -175,7 +180,7 @@ class Speaker():
         first_feat = np.zeros((len(obs), self.feature_size+args.angle_feat_size), np.float32)
         for i, ob in enumerate(obs):
             first_feat[i, -args.angle_feat_size:] = utils.angle_feature(ob['heading'], ob['elevation'])
-        first_feat = torch.from_numpy(first_feat).cuda()
+        first_feat = torch.from_numpy(first_feat).cuda() #(64,2176)
         while not ended.all():
             if viewpoints is not None:
                 for i, ob in enumerate(obs):
@@ -223,7 +228,7 @@ class Speaker():
         else:
             obs = self.env._get_obs()
             batch_size = len(obs)
-            (img_feats, can_feats), lengths = self.from_shortest_path()      # Image Feature (from the shortest path)
+            (img_feats, can_feats), lengths = self.from_shortest_path()      # Image Feature (from the shortest path) ([64,7,36,2176],[64,7,2176])
             ctx = self.encoder(can_feats, img_feats, lengths)
         h_t = torch.zeros(1, batch_size, args.rnn_dim).cuda()
         c_t = torch.zeros(1, batch_size, args.rnn_dim).cuda()
@@ -234,14 +239,14 @@ class Speaker():
             insts = self.gt_words(obs)                                       # Language Feature
 
         # Decode
-        logits, _, _ = self.decoder(insts, ctx, ctx_mask, h_t, c_t)
-
+        logits, _, _ = self.decoder(insts, ctx, ctx_mask, h_t, c_t)  # input:(64,80) (64,7,512) (64,7) (1,64,512) (1,64,512)
+                                                                     # output: (64,80,992)
         # Because the softmax_loss only allow dim-1 to be logit,
         # So permute the output (batch_size, length, logit) --> (batch_size, logit, length)
-        logits = logits.permute(0, 2, 1).contiguous()
+        logits = logits.permute(0, 2, 1).contiguous()                # (64, 992, 80)
         loss = self.softmax_loss(
-            input  = logits[:, :, :-1],         # -1 for aligning
-            target = insts[:, 1:]               # "1:" to ignore the word <BOS>
+            input  = logits[:, :, :-1],         # -1 for aligning (64, 992, 79)
+            target = insts[:, 1:]               # "1:" to ignore the word <BOS> (64,79)
         )
 
         if for_listener:

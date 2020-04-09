@@ -5,14 +5,14 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from param import args
-
+import random
 
 class EncoderLSTM(nn.Module):
     ''' Encodes navigation instructions, returning hidden state context (for
         attention methods) and a decoder initial state. '''
 
-    def __init__(self, vocab_size, embedding_size, hidden_size, padding_idx, 
-                            dropout_ratio, bidirectional=False, num_layers=1):
+    def __init__(self, vocab_size, embedding_size, hidden_size, padding_idx,
+                            dropout_ratio, bidirectional=False, num_layers=1, glove=None):
         super(EncoderLSTM, self).__init__()
         self.embedding_size = embedding_size
         self.hidden_size = hidden_size
@@ -22,13 +22,17 @@ class EncoderLSTM(nn.Module):
         self.num_directions = 2 if bidirectional else 1
         self.num_layers = num_layers
         self.embedding = nn.Embedding(vocab_size, embedding_size, padding_idx)
+        self.use_glove = glove is not None
+        if self.use_glove:
+            print('Using GloVe embedding')
+            self.embedding.weight.data[...] = torch.from_numpy(glove)
+            self.embedding.weight.requires_grad = False
         input_size = embedding_size
         self.lstm = nn.LSTM(input_size, hidden_size, self.num_layers,
-                            batch_first=True, dropout=dropout_ratio, 
+                            batch_first=True, dropout=dropout_ratio,
                             bidirectional=bidirectional)
         self.encoder2decoder = nn.Linear(hidden_size * self.num_directions,
-            hidden_size * self.num_directions
-        )
+                                         hidden_size * self.num_directions)
 
     def init_state(self, inputs):
         ''' Initialize to zero cell states and hidden states.'''
@@ -47,10 +51,11 @@ class EncoderLSTM(nn.Module):
         return h0.cuda(), c0.cuda()
 
     def forward(self, inputs, lengths):
-        ''' Expects input vocab indices as (batch, seq_len). Also requires a 
+        ''' Expects input vocab indices as (batch, seq_len). Also requires a
             list of lengths for dynamic batching. '''
         embeds = self.embedding(inputs)  # (batch, seq_len, embedding_size)
-        embeds = self.drop(embeds)
+        if not self.use_glove:
+            embeds = self.drop(embeds)
         h0, c0 = self.init_state(inputs)
         packed_embeds = pack_padded_sequence(embeds, lengths, batch_first=True)
         enc_h, (enc_h_t, enc_c_t) = self.lstm(packed_embeds, (h0, c0))
@@ -81,7 +86,7 @@ class EncoderLSTM(nn.Module):
 
 
 class SoftDotAttention(nn.Module):
-    '''Soft Dot Attention. 
+    '''Soft Dot Attention.
 
     Ref: http://www.aclweb.org/anthology/D15-1166
     Adapted from PyTorch OPEN NMT.
@@ -111,7 +116,7 @@ class SoftDotAttention(nn.Module):
 
         if mask is not None:
             # -Inf masking prior to the softmax
-            attn.masked_fill_(mask, -float('inf'))
+            attn.masked_fill_(mask.bool(), -float('inf'))
         attn = self.sm(attn)    # There will be a bug here, but it's actually a problem in torch source code.
         attn3 = attn.view(attn.size(0), 1, attn.size(1))  # batch x 1 x seq_len
 
@@ -130,8 +135,31 @@ class AttnDecoderLSTM(nn.Module):
     ''' An unrolled LSTM with attention over instructions for decoding navigation actions. '''
 
     def __init__(self, embedding_size, hidden_size,
-                       dropout_ratio, feature_size=2048+4):
+                       dropout_ratio):
         super(AttnDecoderLSTM, self).__init__()
+
+        if args.sparseObj and (not args.denseObj):
+            print("Train in sparseObj mode")
+            feature_size = args.glove_emb+args.angle_bbox_size  # 308
+            if args.catRN:
+                print("Train in sparseObj+RN mode")
+                feature_size = args.glove_emb+args.angle_bbox_size+args.feature_size+args.angle_feat_size # 2484
+        elif args.denseObj and (not args.sparseObj):
+            print("Train in denseObj mode")
+            feature_size = args.feature_size+args.angle_feat_size   # 2176
+            if args.catRN:
+                print("Train in denseObj+RN mode")
+                feature_size = args.feature_size*2+args.angle_feat_size*2 # 4352
+                # self.att_fc = nn.Linear(feature_size, args.feature_size) # run denseObj_RN_FC_0
+        elif args.denseObj and args.sparseObj:
+            print("Train in sparseObj + denseObj mode")
+            feature_size = args.feature_size+args.angle_feat_size+args.glove_emb+args.angle_bbox_size # 2484
+            if args.catRN:
+                print("Train in sparseObj+denseObj+RN mode")
+                feature_size = args.feature_size*2+args.angle_feat_size*2+args.glove_emb+args.angle_bbox_size # 4660
+        else:
+            print("Train in RN mode")
+            feature_size = args.feature_size+args.angle_feat_size # 2176
         self.embedding_size = embedding_size
         self.feature_size = feature_size
         self.hidden_size = hidden_size
@@ -142,13 +170,18 @@ class AttnDecoderLSTM(nn.Module):
         self.drop = nn.Dropout(p=dropout_ratio)
         self.drop_env = nn.Dropout(p=args.featdropout)
         self.lstm = nn.LSTMCell(embedding_size+feature_size, hidden_size)
-        self.feat_att_layer = SoftDotAttention(hidden_size, feature_size)
+        # self.lstm = nn.LSTMCell(args.feature_size+embedding_size, hidden_size) ## run denseObj_RN_FC_0
+        self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
+        if args.denseObj:
+            self.dense_att_layer = SoftDotAttention(hidden_size, args.feature_size + args.angle_feat_size)
+        if args.sparseObj:
+            self.sparse_att_layer = SoftDotAttention(hidden_size, args.glove_emb+args.angle_bbox_size)
         self.attention_layer = SoftDotAttention(hidden_size, hidden_size)
-        self.candidate_att_layer = SoftDotAttention(hidden_size, feature_size)
+        self.candidate_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
 
-    def forward(self, action, feature, cand_feat,
-                h_0, prev_h1, c_0,
-                ctx, ctx_mask=None,
+    def forward(self, action, cand_feat,
+                    prev_h1, c_0,
+                ctx, ctx_mask=None,feature=None, sparseObj=None,denseObj=None,ObjFeature_mask=None,
                 already_dropfeat=False):
         '''
         Takes a single step in the decoder LSTM (allowing sampling).
@@ -162,23 +195,45 @@ class AttnDecoderLSTM(nn.Module):
         ctx_mask: batch x seq_len - indices to be masked
         already_dropfeat: used in EnvDrop
         '''
-        action_embeds = self.embedding(action)
+        action_embeds = self.embedding(action) #(64,64)
 
         # Adding Dropout
         action_embeds = self.drop(action_embeds)
+        prev_h1_drop = self.drop(prev_h1)
 
         if not already_dropfeat:
-            # Dropout the raw feature as a common regularization
-            feature[..., :-args.angle_feat_size] = self.drop_env(feature[..., :-args.angle_feat_size])   # Do not drop the last args.angle_feat_size (position feat)
+            if sparseObj is not None:
+                sparseObj[..., :-args.angle_bbox_size] = self.drop_env(sparseObj[..., :-args.angle_bbox_size])
+                sparse_attn_feat, _ = self.sparse_att_layer(prev_h1_drop, sparseObj, mask=ObjFeature_mask,output_tilde=False)
+            if denseObj is not None:
+                denseObj[..., :-args.angle_feat_size] = self.drop_env(denseObj[..., :-args.angle_feat_size])
+                dense_attn_feat, _ = self.dense_att_layer(prev_h1_drop, denseObj, mask=ObjFeature_mask,output_tilde=False)
+            if feature is not None:
+                # Dropout the raw feature as a common regularization
+                feature[..., :-args.angle_feat_size] = self.drop_env(feature[..., :-args.angle_feat_size])   # Do not drop the last args.angle_feat_size (position feat)
+                RN_attn_feat, _ = self.feat_att_layer(prev_h1_drop, feature, output_tilde=False)  # input: (64,512), (64,36,2176)
 
-        prev_h1_drop = self.drop(prev_h1)
-        attn_feat, _ = self.feat_att_layer(prev_h1_drop, feature, output_tilde=False)
+        if args.sparseObj and(not args.denseObj):
+            attn_feat = sparse_attn_feat
+            if args.catRN:
+                attn_feat = torch.cat([RN_attn_feat,sparse_attn_feat],1)
+        elif args.denseObj and (not args.sparseObj):
+            attn_feat = dense_attn_feat
+            if args.catRN:
+                attn_feat = torch.cat([RN_attn_feat, dense_attn_feat], 1)
+                # attn_feat = self.att_fc(attn_feat) # run denseObj_RN_FC_0
+        elif args.denseObj and args.sparseObj:
+            attn_feat = torch.cat([dense_attn_feat,sparse_attn_feat], 1)
+            if args.catRN:
+                attn_feat = torch.cat([RN_attn_feat, dense_attn_feat, sparse_attn_feat],1)
+        else:
+            attn_feat = RN_attn_feat
 
-        concat_input = torch.cat((action_embeds, attn_feat), 1) # (batch, embedding_size+feature_size)
-        h_1, c_1 = self.lstm(concat_input, (prev_h1, c_0))
+        concat_input = torch.cat((action_embeds, attn_feat), 1) # (batch, embedding_size+feature_size)  input:(64,64) output:(64,2240)
+        h_1, c_1 = self.lstm(concat_input, (prev_h1, c_0)) #
 
         h_1_drop = self.drop(h_1)
-        h_tilde, alpha = self.attention_layer(h_1_drop, ctx, ctx_mask)
+        h_tilde, _ = self.attention_layer(h_1_drop, ctx, ctx_mask)
 
         # Adding Dropout
         h_tilde_drop = self.drop(h_tilde)
@@ -257,10 +312,15 @@ class SpeakerEncoder(nn.Module):
         return x
 
 class SpeakerDecoder(nn.Module):
-    def __init__(self, vocab_size, embedding_size, padding_idx, hidden_size, dropout_ratio):
+    def __init__(self, vocab_size, embedding_size, padding_idx, hidden_size, dropout_ratio, glove=None):
         super().__init__()
         self.hidden_size = hidden_size
         self.embedding = torch.nn.Embedding(vocab_size, embedding_size, padding_idx)
+        self.use_glove = glove is not None
+        if self.use_glove:
+            print('Using GloVe embedding')
+            self.embedding.weight.data[...] = torch.from_numpy(glove)
+            self.embedding.weight.requires_grad = False
         self.lstm = nn.LSTM(embedding_size, hidden_size, batch_first=True)
         self.drop = nn.Dropout(dropout_ratio)
         self.attention_layer = SoftDotAttention(hidden_size, hidden_size)
@@ -274,7 +334,8 @@ class SpeakerDecoder(nn.Module):
 
     def forward(self, words, ctx, ctx_mask, h0, c0):
         embeds = self.embedding(words)
-        embeds = self.drop(embeds)
+        if not self.use_glove:
+            embeds = self.drop(embeds)
         x, (h1, c1) = self.lstm(embeds, (h0, c0))
 
         x = self.drop(x)
@@ -288,9 +349,9 @@ class SpeakerDecoder(nn.Module):
         # Expand the ctx from  (b, a, r)    --> (b(word)*l(word), a, r)
         # Expand the ctx_mask  (b, a)       --> (b(word)*l(word), a)
         x, _ = self.attention_layer(
-            x.contiguous().view(batchXlength, self.hidden_size),
-            ctx.unsqueeze(1).expand(-1, multiplier, -1, -1).contiguous(). view(batchXlength, -1, self.hidden_size),
-            mask=ctx_mask.unsqueeze(1).expand(-1, multiplier, -1).contiguous().view(batchXlength, -1)
+            x.contiguous().view(batchXlength, self.hidden_size),   # (5120, 512)
+            ctx.unsqueeze(1).expand(-1, multiplier, -1, -1).contiguous(). view(batchXlength, -1, self.hidden_size), #(5120,22,512)
+            mask=ctx_mask.unsqueeze(1).expand(-1, multiplier, -1).contiguous().view(batchXlength, -1) # (5120,22)
         )
         x = x.view(words.size(0), words.size(1), self.hidden_size)
 
@@ -300,4 +361,110 @@ class SpeakerDecoder(nn.Module):
 
         return logit, h1, c1
 
+class AuxAng(nn.Module):
+    def __init__(self, hidden_size):
+        super().__init__()
+        # self.fc1 = nn.Linear(hidden_size, hidden_size)
+        self.fc = nn.Sequential(
+                        nn.Linear(hidden_size, hidden_size),
+                        nn.LeakyReLU(),
+                        nn.Linear(hidden_size, 4),
+                        nn.Sigmoid()
+        )
+
+    def forward(self, f_t_hat):
+        """
+        :param action_embeds: (batch_size, length, 2052). The feature of the view
+        :param feature: (batch_size, length, 36, 2052). The action taken (with the image feature)
+        :param lengths: Not used in it
+        :return: context with shape (batch_size, length, hidden_size)
+        """
+        ang_pre = self.fc(f_t_hat)
+        return ang_pre
+
+class AuxFea(nn.Module):
+    def __init__(self):
+        super().__init__()
+        hidden_size = args.rnn_dim
+        self.fc1 = nn.Linear(hidden_size, hidden_size)
+        self.relu1 = nn.LeakyReLU()
+        self.fc2 = nn.Linear(hidden_size, args.feature_size)
+
+    def forward(self, h):
+        h = self.relu1(self.fc1(h))
+        h = self.fc2(h)
+        return h
+
+class AuxPro(nn.Module):
+    def __init__(self, hidden_size):
+        super().__init__()
+        self.fc = nn.Sequential(
+                        nn.Linear(hidden_size,hidden_size),
+                        nn.LeakyReLU(),
+                        nn.Linear(hidden_size, 1),
+                        nn.Sigmoid()
+                  )
+    def forward(self, f_t_hat):
+        """
+        :param action_embeds: (batch_size, length, 2052). The feature of the view
+        :param feature: (batch_size, length, 36, 2052). The action taken (with the image feature)
+        :param lengths: Not used in it
+        :return: context with shape (batch_size, length, hidden_size)
+        """
+        score = self.fc(f_t_hat)
+        return score
+
+class AuxMat(nn.Module):
+    def __init__(self, hidden_size,prob):
+        super().__init__()
+        self.prob = prob
+        self.fc = nn.Sequential(
+            nn.Linear(2*hidden_size, hidden_size),
+            nn.LeakyReLU(),
+            nn.Linear(hidden_size, 1),
+            nn.Sigmoid()
+        )
+
+    def forward(self, f_t_hat, f_wl_avr, ended):
+        batchsize = f_t_hat.size(0)
+        idx = []
+        shuffle_num = 0
+        for f_idx, f in enumerate(ended):
+            if(f==False):
+                idx.append(f_idx)
+                shuffle_num += 1
+        # shuffle
+        random.shuffle(idx)
+        idx1 = idx[0:int(shuffle_num * self.prob / 2)]
+        idx2 = idx[-int(shuffle_num * self.prob / 2):]
+        mt = torch.zeros(batchsize).cuda()
+
+        perm1 = [i for i in range(batchsize)]
+        for i in range(int(shuffle_num*self.prob/2)):
+            t = perm1[idx1[i]]
+            perm1[idx1[i]] = perm1[idx2[i]]
+            perm1[idx2[i]] = t
+            mt[idx1[i]] = mt[idx2[i]] = 1
+        # concat
+        f_wl_avr = f_wl_avr[perm1]
+        input = torch.cat((f_t_hat, f_wl_avr),1)
+        score = self.fc(input).squeeze(1)
+        return score, mt
+
+class Comfc(nn.Module):
+    def __init__(self, hidden_size, dropout_ratio):
+        super().__init__()
+        self.fc = nn.Sequential(
+                        nn.Linear(hidden_size, hidden_size, bias=False),
+                        nn.Dropout(p=dropout_ratio)
+                  )
+    def forward(self, f_t_hat):
+        """
+        :param action_embeds: (batch_size, length, 2052). The feature of the view
+        :param feature: (batch_size, length, 36, 2052). The action taken (with the image feature)
+        :param lengths: Not used in it
+        :return: context with shape (batch_size, length, hidden_size)
+        """
+        f_t_hat_fc = self.fc(f_t_hat)
+        return f_t_hat_fc
 

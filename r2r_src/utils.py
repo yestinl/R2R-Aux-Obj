@@ -3,6 +3,7 @@
 import os
 import sys
 import re
+sys.path.insert(0, 'build')
 sys.path.append('build')
 import MatterSim
 import string
@@ -13,6 +14,10 @@ from collections import Counter, defaultdict
 import numpy as np
 import networkx as nx
 from param import args
+
+import subprocess
+
+from polyaxon_client.tracking import get_data_paths
 
 
 # padding, unknown word, end of sentence
@@ -256,6 +261,54 @@ def read_img_features(feature_store):
     print("Finish Loading the image feature from %s in %0.4f seconds" % (feature_store, time.time() - start))
     return features
 
+def read_obj_features(feature_store):
+    import csv
+    import base64
+    from tqdm import tqdm
+
+    print("Start loading the object feature")
+    start = time.time()
+    max_obj_num = 8
+    viewpoint_num = 36
+
+    # tsv_fieldnames = ['scanId', 'viewpointId', 'image_w', 'image_h', 'vfov', 'features']
+    tsv_fieldnames = ['scanId', 'viewpointId', 'viewId', 'classes', 'bboxes','scores','features']
+    obj_d_features = {}
+    obj_s_features = {}
+    obj_len = {}
+    with open(feature_store, "r") as tsv_in_file:     # Open the tsv file.
+        reader = csv.DictReader(tsv_in_file, delimiter='\t', fieldnames=tsv_fieldnames)
+        item_num = 0
+        for item in reader:
+            # long_feat_id = item['scanId'] + "_" + item['viewpointId']
+            long_id = item['scanId'] + "_" + item['viewpointId']
+            obj_num = np.frombuffer(base64.b64decode(item['classes']), dtype=np.int64).shape[0]
+            if long_id not in obj_d_features:
+                count = 0
+                obj_d_features[long_id] = np.zeros((viewpoint_num,max_obj_num, 2048))
+                obj_s_features[long_id] = [np.zeros((viewpoint_num,max_obj_num)), np.zeros((viewpoint_num,max_obj_num,4)),
+                                           np.zeros((viewpoint_num,max_obj_num)), np.zeros(viewpoint_num)]
+            # obj_d_features[long_id] = np.zeros((max_obj_num, 2048))
+            if obj_num > 0:
+                obj_s_features[long_id][0][count][:obj_num] = np.frombuffer(base64.b64decode(item['classes']),
+                                                                     dtype=np.int64).reshape((obj_num))
+                obj_s_features[long_id][1][count][:obj_num][:] = np.frombuffer(base64.b64decode(item['bboxes']),
+                                                                     dtype=np.float32).reshape((obj_num, 4))
+                obj_s_features[long_id][2][count][:obj_num] = np.frombuffer(base64.b64decode(item['scores']),
+                                                                     dtype=np.float32).reshape((obj_num))
+                obj_s_features[long_id][3][count] = obj_num
+
+                obj_d_features[long_id][count][:obj_num] = np.frombuffer(base64.decodestring(item['features'].encode('ascii')),
+                                                                  dtype=np.float32).reshape((obj_num, -1))
+                count += 1
+                item_num += 1
+            else:
+                count += 1
+                continue
+    print("Finish Loading the %d object feature from %s in %0.4f seconds" % (item_num, feature_store, time.time() - start))
+    return obj_d_features, obj_s_features
+
+
 def read_candidates(candidates_store):
     import csv
     import base64
@@ -471,6 +524,17 @@ def viewpoint_drop_mask(viewpoint, seed=None, drop_func=None):
     drop_mask = drop_func(torch.ones(2048).cuda())
     return drop_mask
 
+def progress_generator(mask):
+    mask = ~mask # [True, True, False]
+    counter = mask.clone()
+    counter = torch.sum(counter, dim=1).float()
+    unit = 1 / counter
+    progress = torch.ones_like(mask).cuda()
+    progress = torch.cumsum(progress, dim=1).float()
+    progress = progress * unit.unsqueeze(1).expand(mask.shape)
+    progress = progress * mask.float()
+    return progress
+
 
 class FloydGraph:
     def __init__(self):
@@ -523,6 +587,59 @@ class FloydGraph:
             #         print(x1, x2, "%.4f" % self._dis[x1][x2])
             return self.path(x, k) + self.path(k, y)
 
+def gen_panorama_img(scanId, viewpointId, agent_heading=0, vfov_deg=90,
+                     hfov_deg=10, height=480):
+    # # Try to import the matterport simulator
+    # import os.path as osp
+    # import sys; sys.path.append(osp.join(osp.dirname(__file__), '../../../build'))  # NoQA
+    # import MatterSim
+
+    assert 360 % hfov_deg == 0, 'hfov_deg must be a factor of 360'
+    HEIGHT = height
+    VFOV = np.radians(vfov_deg)
+    HFOV = np.radians(hfov_deg)
+    DEPTH = (HEIGHT/2.) / np.tan(VFOV/2.)
+    WIDTH = int(np.round(2.*DEPTH*np.tan(HFOV/2.)))
+
+    num_headings = int(360/hfov_deg) + 1
+    pano_img = np.zeros(
+        (HEIGHT, WIDTH*num_headings, 3), np.uint8)
+
+    sim = MatterSim.Simulator()
+    sim.setCameraResolution(WIDTH, HEIGHT)
+    sim.setCameraVFOV(VFOV)
+    sim.init()
+    # sim.initialize()
+    for n_heading in range(num_headings):
+        heading = agent_heading+np.radians(n_heading*hfov_deg-180)
+        sim.newEpisode(scanId, viewpointId, heading, 0)
+        state = sim.getState()
+        im = state.rgb
+        X_begin = WIDTH*n_heading
+        X_end = X_begin+WIDTH
+        pano_img[:, X_begin:X_end, :] = im[..., ::-1]
+    pano_img = pano_img[:, WIDTH//2:-WIDTH//2, :]
+    return pano_img
 
 
+def get_sync_dir(file):
+    # 只改source_data就好
+    source_data = file
 
+    sync_source_dir = os.path.join(get_data_paths()['ssd'], source_data.strip('/'))
+    sync_dest_dir = os.path.join(get_data_paths()['host-path'],
+                                 os.path.dirname(source_data.strip('/')))
+
+    # 确保同步目录存在, 防止拷贝文件时异常
+    if not os.path.exists(sync_dest_dir):
+        cmd_line = "mkdir -p {0}".format(sync_dest_dir)
+        subprocess.call(cmd_line.split())
+
+    data_dir = os.path.join(get_data_paths()['host-path'], source_data.strip('/'))
+
+    if not os.path.exists(data_dir):
+        # --info=progress2需要rsync3.1+的版本支持
+        cmd_line = "rsync -a {0} {1}".format(sync_source_dir, sync_dest_dir)
+        subprocess.call(cmd_line.split())
+
+    return data_dir

@@ -1,0 +1,16 @@
+version: 1
+kind: experiment
+build:
+    image: docker.dm-ai.cn/algorithm-research/matteraux:latest
+environment:
+    resources:
+        cpu:
+            requests: 1
+            limits: 2
+        gpu:
+            requests: 1
+            limits: 1
+    outputs:
+        experiments: [9156]
+run:
+    cmd: CUDA_VISIBLE_DEVICES=0 python3.6 r2r_src/train.py --speWeight 1 --proWeight 1 --angWeight 2 --feaWeight 1 --submit --denseObj --catRN --objdir 0_85 --name denseObj_RN_85_2

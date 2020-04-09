@@ -8,14 +8,18 @@ class Param:
         self.parser = argparse.ArgumentParser(description="")
 
         # General
-        self.parser.add_argument('--iters', type=int, default=100000)
+        self.parser.add_argument('--iters', type=int, default=80000)
         self.parser.add_argument('--name', type=str, default='default')
-        self.parser.add_argument('--train', type=str, default='speaker')
+        self.parser.add_argument('--train', type=str, default='listener')
+        self.parser.add_argument('--objdir', type=str, default='0_85')
+
+        # Shuffle probability
+        self.parser.add_argument('--shuffleprob', type=float, default=0.5)
 
         # Data preparation
         self.parser.add_argument('--maxInput', type=int, default=80, help="max input instruction")
         self.parser.add_argument('--maxDecode', type=int, default=120, help="max input instruction")
-        self.parser.add_argument('--maxAction', type=int, default=20, help='Max Action sequence')
+        self.parser.add_argument('--maxAction', type=int, default=35, help='Max Action sequence')
         self.parser.add_argument('--batchSize', type=int, default=64)
         self.parser.add_argument('--ignoreid', type=int, default=-100)
         self.parser.add_argument('--feature_size', type=int, default=2048)
@@ -31,10 +35,24 @@ class Param:
 
         # Listener Model Config
         self.parser.add_argument("--zeroInit", dest='zero_init', action='store_const', default=False, const=True)
-        self.parser.add_argument("--mlWeight", dest='ml_weight', type=float, default=0.05)
+        # self.parser.add_argument("--useObj", dest='useObj', action='store_const', default=False, const=True)
+        self.parser.add_argument("--sparseObj", dest='sparseObj', action='store_const', default=False, const=True)
+        self.parser.add_argument("--catRN", dest='catRN', action='store_const', default=False, const=True)
+        self.parser.add_argument("--denseObj", dest='denseObj', action='store_const', default=False, const=True)
+        self.parser.add_argument("--meanPooling", dest='meanPooling', action='store_const', default=False, const=True)
+        # self.parser.add_argument("--trainAux2", dest='train_aux2', action='store_const', default=False, const=True)
+        self.parser.add_argument("--mlWeight", dest='ml_weight', type=float, default=0.2)
+        self.parser.add_argument("--rlWeight", dest='rl_weight', type=float, default=1)
+        self.parser.add_argument("--angWeight", dest='ang_weight', type=float, default=0)
+        self.parser.add_argument("--proWeight", dest='pro_weight', type=float, default=0)
+        self.parser.add_argument("--matWeight", dest='mat_weight', type=float, default=0)
+        self.parser.add_argument("--speWeight", dest='spe_weight', type=float, default=0)
+        self.parser.add_argument("--feaWeight", dest='fea_weight', type=float, default=0)
         self.parser.add_argument("--teacherWeight", dest='teacher_weight', type=float, default=1.)
         self.parser.add_argument("--accumulateGrad", dest='accumulate_grad', action='store_const', default=False, const=True)
         self.parser.add_argument("--features", type=str, default='imagenet')
+        self.parser.add_argument("--mlSpe", dest='ml_spe', type=float, default=2)
+        self.parser.add_argument("--rlSpe", dest='rl_spe', type=float, default=1)
 
         # Env Dropout Param
         self.parser.add_argument('--featdropout', type=float, default=0.3)
@@ -47,6 +65,7 @@ class Param:
         self.parser.add_argument("--paramSearch", dest='param_search', action='store_const', default=False, const=True)
         self.parser.add_argument("--submit", action='store_const', default=False, const=True)
         self.parser.add_argument("--beam", action="store_const", default=False, const=True)
+        self.parser.add_argument("--useGlove", action="store_const", default=False, const=True)
         self.parser.add_argument("--alpha", type=float, default=0.5)
 
         # Training Configurations
@@ -64,6 +83,7 @@ class Param:
         self.parser.add_argument('--rnnDim', dest="rnn_dim", type=int, default=512)
         self.parser.add_argument('--wemb', type=int, default=256)
         self.parser.add_argument('--aemb', type=int, default=64)
+        self.parser.add_argument('--glove_emb', type=int, default=300)
         self.parser.add_argument('--proj', type=int, default=512)
         self.parser.add_argument("--fast", dest="fast_train", action="store_const", default=False, const=True)
         self.parser.add_argument("--valid", action="store_const", default=False, const=True)
@@ -72,10 +92,13 @@ class Param:
 
         self.parser.add_argument("--bidir", type=bool, default=True)    # This is not full option
         self.parser.add_argument("--encode", type=str, default="word")  # sub, word, sub_ctx
-        self.parser.add_argument("--subout", dest="sub_out", type=str, default="tanh")  # tanh, max
+        self.parser.add_argument("--subout", dest="sub_out", type=str, default="max")  # tanh, max
         self.parser.add_argument("--attn", type=str, default="soft")    # soft, mono, shift, dis_shift
 
-        self.parser.add_argument("--angleFeatSize", dest="angle_feat_size", type=int, default=4)
+        self.parser.add_argument("--angleFeatSize", dest="angle_feat_size", type=int, default=128)
+        self.parser.add_argument("--angleObjSize", dest="angle_bbox_size", type=int, default=8)
+        # seed
+        self.parser.add_argument("--seed", dest="seed", type=float, default=100)
 
         # A2C
         self.parser.add_argument("--gamma", default=0.9, type=float)
@@ -104,6 +127,7 @@ args.IMAGENET_FEATURES = 'img_features/ResNet-152-imagenet.tsv'
 args.CANDIDATE_FEATURES = 'img_features/ResNet-152-candidate.tsv'
 args.features_fast = 'img_features/ResNet-152-imagenet-fast.tsv'
 args.log_dir = 'snap/%s' % args.name
+args.GLOVE_PATH = 'tasks/R2R/data/glove/train_glove.npy'
 
 if not os.path.exists(args.log_dir):
     os.makedirs(args.log_dir)
