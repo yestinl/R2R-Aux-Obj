@@ -42,6 +42,13 @@ bash run/agent.bash 0
 ```
 0 is the id of GPU. It will train the agent and save the snapshot under snap/agent/. Unseen success rate would be around 46%.
 
+```
+CUDA_VISIBLE_DEVICES=0 python3.6 r2r_src/train.py --speWeight 1 --proWeight 1 --angWeight 2 --feaWeight 1 --submit --denseObj --catRN --objdir 0_85 --name denseObj_RN_85
+```
+--denseObj mean use dense object feature, {denseObj, sparseObj}
+--catRN mean concat visual feature
+--objdir 0_85 mean use threshold=0.85, {0_75,0_8,0_85}
+
 ### Agent + Speaker (Back Translation)
 After pre-training the speaker and the agnet,
 ```
