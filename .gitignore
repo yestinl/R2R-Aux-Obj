@@ -1,0 +1,10 @@
+*.pyc
+*.so
+*.zip
+r2r_src/.idea
+img_features
+obj_features
+build
+snap
+data
+semantic_views
