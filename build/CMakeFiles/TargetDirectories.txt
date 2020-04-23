@@ -1,9 +1,0 @@
-/data3/lyx/project/R2R-Env-Aux/build/CMakeFiles/rebuild_cache.dir
-/data3/lyx/project/R2R-Env-Aux/build/CMakeFiles/edit_cache.dir
-/data3/lyx/project/R2R-Env-Aux/build/CMakeFiles/MatterSimPython.dir
-/data3/lyx/project/R2R-Env-Aux/build/CMakeFiles/MatterSim.dir
-/data3/lyx/project/R2R-Env-Aux/build/CMakeFiles/tests.dir
-/data3/lyx/project/R2R-Env-Aux/build/CMakeFiles/mattersim_main.dir
-/data3/lyx/project/R2R-Env-Aux/build/CMakeFiles/random_agent.dir
-/data3/lyx/project/R2R-Env-Aux/build/pybind11/CMakeFiles/rebuild_cache.dir
-/data3/lyx/project/R2R-Env-Aux/build/pybind11/CMakeFiles/edit_cache.dir
