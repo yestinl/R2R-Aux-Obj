@@ -11,4 +11,4 @@ environment:
             requests: 1
             limits: 1
 run:
-    cmd: python3.6 r2r_src/train.py --speWeight 1 --proWeight 1 --angWeight 2 --feaWeight 1 --submit --upload --denseObj --catRN --objthr 0.99 --name denseObj_RN_99_2
+    cmd: python3.6 r2r_src/train.py --upload --feaWeight 1 --name R2R_Env_fea_1
