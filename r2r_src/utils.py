@@ -86,7 +86,7 @@ def load_datasets(splits):
 
         # Partition
         if number > 0:
-            random.seed(args.seed)              # Make the data deterministic, additive
+            random.seed(0)              # Make the data deterministic, additive
             random.shuffle(new_data)
             new_data = new_data[:number]
 
@@ -581,7 +581,7 @@ def tile_batch(tensor, multiplier):
 
 def viewpoint_drop_mask(viewpoint, seed=None, drop_func=None):
     local_seed = hash(viewpoint) ^ seed
-    torch.random.manual_seed(args.seed)
+    torch.random.manual_seed(local_seed)
     drop_mask = drop_func(torch.ones(2048).cuda())
     return drop_mask
 

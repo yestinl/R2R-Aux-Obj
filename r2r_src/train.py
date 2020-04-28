@@ -8,7 +8,7 @@ else:
 
 from utils import read_vocab,write_vocab,build_vocab,Tokenizer,padding_idx,timeSince, read_img_features, get_sync_dir, setup_seed
 
-setup_seed(args.seed)
+# setup_seed(args.seed)
 
 import torch
 
@@ -25,6 +25,12 @@ from env import R2RBatch
 from agent import Seq2SeqAgent
 from eval import Evaluation
 
+from polyaxon_client.tracking import get_outputs_refs_paths
+if args.train == 'validlistener' and args.upload:
+    refs_paths = get_outputs_refs_paths()['experiments'][0]
+    print(refs_paths)
+    load_model = os.path.join(refs_paths,args.load)
+    print(load_model)
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -70,6 +76,10 @@ def train_speaker(train_env, tok, n_iters, log_every=500, val_envs={}):
     listner = Seq2SeqAgent(train_env, "", tok, args.maxAction)
     speaker = Speaker(train_env, listner, tok)
 
+    if args.load is not None:
+        print("LOAD THE Speaker from %s" % args.load)
+        speaker.load(os.path.join(args.load))
+
     if args.fast_train:
         log_every = 40
 
@@ -94,6 +104,7 @@ def train_speaker(train_env, tok, n_iters, log_every=500, val_envs={}):
             speaker.env = env
             path2inst, loss, word_accu, sent_accu = speaker.valid()
             path_id = next(iter(path2inst.keys()))
+            print('path_id:', path_id)
             print("Inference: ", tok.decode_sentence(path2inst[path_id]))
             print("GT: ", evaluator.gt[str(path_id)]['instructions'])
             bleu_score, precisions = evaluator.bleu_score(path2inst)
@@ -224,7 +235,8 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
             iters = None if args.fast_train or env_name != 'train' else 20     # 20 * 64 = 1280
 
             # Get validation distance from goal under test evaluation conditions
-            listner.test(use_dropout=False, feedback='argmax', iters=iters)
+            with torch.no_grad():
+                listner.test(use_dropout=False, feedback='argmax', iters=iters)
             result = listner.get_results()
             score_summary, _ = evaluator.score(result)
             loss_str += "%s " % env_name
@@ -268,26 +280,28 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
             for env_name in best_val:
                 print(env_name, best_val[env_name]['state'])
 
-        if iter % 20000 == 0:
+        if iter % 40000 == 0:
             file_dir = os.path.join(output_dir, "snap", args.name, "state_dict", "Iter_%06d" % (iter))
             listner.save(idx, file_dir)
 
-    file_dir = os.path.join(output_dir, "snap", args.name, "state_dict", "LAST_iter%d" % (idx))
-    listner.save(idx, file_dir)
+    # file_dir = os.path.join(output_dir, "snap", args.name, "state_dict", "LAST_iter%d" % (idx))
+    # listner.save(idx, file_dir)
 
 def valid(train_env, tok, val_envs={}):
     agent = Seq2SeqAgent(train_env, "", tok, args.maxAction)
 
     if args.upload:
-        print("Loaded the listener model at iter %d from %s" % (agent.load(get_sync_dir(os.path.join(args.upload_path,args.load))),
-                                                                os.path.join(args.upload_path,args.load)))
+        print("Loaded the listener model at iter %d from %s" % (agent.load(load_model), load_model))
     else:
         print("Loaded the listener model at iter %d from %s" % (agent.load(os.path.join(args.R2R_Aux_path, args.load)),
                                                                 os.path.join(args.R2R_Aux_path, args.load)))
 
 
-
+    # cnt = 0
     for env_name, (env, evaluator) in val_envs.items():
+        # if cnt < 2:
+        #     cnt += 1
+        #     continue
         agent.logs = defaultdict(list)
         agent.env = env
 
@@ -296,18 +310,35 @@ def valid(train_env, tok, val_envs={}):
         result = agent.get_results()
 
         if env_name != '':
-            score_summary, _ = evaluator.score(result)
+            loss_str1 = "%s" % env_name
+            if args.analizePath:
+                score_summary, _, success_path, error_path = evaluator.score(result)
+            else:
+                score_summary, _ = evaluator.score(result)
             loss_str = "Env name: %s" % env_name
             for metric,val in score_summary.items():
                 loss_str += ', %s: %.4f' % (metric, val)
+                loss_str1 += " %.4f" % val
             print(loss_str)
-
+            print(loss_str1)
+        # break
         if args.submit:
             json.dump(
                 result,
                 open(os.path.join(log_dir, "submit_%s.json" % env_name), 'w'),
                 sort_keys=True, indent=4, separators=(',', ': ')
             )
+            if args.analizePath:
+                json.dump(
+                    success_path,
+                    open(os.path.join(log_dir, "success_path_%s.json" % env_name), 'w'),
+                    sort_keys=True, indent=4, separators=(',', ': ')
+                )
+                json.dump(
+                    error_path,
+                    open(os.path.join(log_dir, "error_path_%s.json" % env_name), 'w'),
+                    sort_keys=True, indent=4, separators=(',', ': ')
+                )
 
 
 def beam_valid(train_env, tok, val_envs={}):
@@ -409,8 +440,8 @@ def beam_valid(train_env, tok, val_envs={}):
 
 
 def setup():
-    torch.manual_seed(args.seed)
-    torch.cuda.manual_seed(args.seed)
+    torch.manual_seed(1)
+    torch.cuda.manual_seed(1)
     # Check for vocabs
     if not os.path.exists(train_vocab):
         write_vocab(build_vocab(splits=['train']), train_vocab)

@@ -3,6 +3,7 @@
 import json
 import os
 import sys
+from param import args
 from collections import defaultdict
 import networkx as nx
 import numpy as np
@@ -104,7 +105,18 @@ class Evaluation(object):
         score_summary['spl'] = np.average(spl)
         score_summary['oracle_error'] = np.average(self.scores['oracle_errors'])
         score_summary['steps'] = np.average(self.scores['trajectory_steps'])
-        return score_summary, self.scores
+        if args.analizePath:
+            success_path = []
+            error_path = []
+            for i,d in enumerate(self.scores['nav_errors']):
+                if d < self.error_margin:
+                    success_path.append(results[i])
+                else:
+                    error_path.append(results[i])
+            return score_summary, self.scores, success_path, error_path
+        else:
+            return score_summary, self.scores
+
 
     def bleu_score(self, path2inst):
         from bleu import compute_bleu

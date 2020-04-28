@@ -10,5 +10,8 @@ environment:
         gpu:
             requests: 1
             limits: 1
+    outputs:
+        experiments: [10993]
+
 run:
-    cmd: python3.6 r2r_src/train.py --upload --feaWeight 1 --name R2R_Env_fea_1
+    cmd: python3.6 r2r_src/train.py --upload --feaWeight 1 --name R2R_Env_fea_1_valid --submit --train validlistener --load snap/R2R_Env_fea_1/state_dict/best_val_unseen

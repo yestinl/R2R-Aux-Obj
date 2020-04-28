@@ -99,6 +99,9 @@ class Param:
         self.parser.add_argument("--addRN", dest='addRN', action='store_const', default=False, const=True)
         self.parser.add_argument("--denseObj", dest='denseObj', action='store_const', default=False, const=True)
 
+        # visualize
+        self.parser.add_argument("--analizePath", dest='analizePath', action='store_const', default=False, const=True)
+
         # debug
         self.parser.add_argument("--seed", dest="seed", type=float, default=100)
 

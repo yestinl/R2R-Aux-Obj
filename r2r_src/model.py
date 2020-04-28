@@ -130,7 +130,7 @@ class AttnDecoderLSTM(nn.Module):
     ''' An unrolled LSTM with attention over instructions for decoding navigation actions. '''
 
     def __init__(self, embedding_size, hidden_size,
-                       dropout_ratio, feature_size=2048+4):
+                       dropout_ratio):
         super(AttnDecoderLSTM, self).__init__()
         if args.sparseObj and (not args.denseObj):
             print("Train in sparseObj mode")
@@ -147,7 +147,7 @@ class AttnDecoderLSTM(nn.Module):
                 feature_size = args.feature_size * 2 + args.angle_feat_size * 1  # 4352
                 # self.att_fc = nn.Linear(feature_size, args.feature_size) # run denseObj_RN_FC_0
             if args.addRN:
-                print("Tranin in denseObj add RN mode")
+                print("Train in denseObj add RN mode")
                 feature_size = args.feature_size + args.angle_feat_size
         elif args.denseObj and args.sparseObj:
             print("Train in sparseObj + denseObj mode")

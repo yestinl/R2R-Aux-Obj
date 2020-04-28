@@ -155,7 +155,6 @@ class R2RBatch():
         if tokenizer:
             self.tok = tokenizer
         scans = []
-        seed = args.seed
         for split in splits:
             for item in load_datasets([split]):
                 # Split multiple instructions into separate entries

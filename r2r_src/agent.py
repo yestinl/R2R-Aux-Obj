@@ -28,7 +28,7 @@ class BaseAgent(object):
     def __init__(self, env, results_path):
         self.env = env
         self.results_path = results_path
-        random.seed(args.seed)
+        random.seed(1)
         self.results = {}
         self.losses = [] # For learning agents
     
@@ -90,7 +90,6 @@ class Seq2SeqAgent(BaseAgent):
 
     def __init__(self, env, results_path, tok, episode_len=20):
         super(Seq2SeqAgent, self).__init__(env, results_path)
-        utils.setup_seed(args.seed)
         self.tok = tok
         self.episode_len = episode_len
         self.feature_size = self.env.feature_size
@@ -99,7 +98,7 @@ class Seq2SeqAgent(BaseAgent):
         enc_hidden_size = args.rnn_dim//2 if args.bidir else args.rnn_dim
         self.encoder = model.EncoderLSTM(tok.vocab_size(), args.wemb, enc_hidden_size, padding_idx,
                                          args.dropout, bidirectional=args.bidir).cuda()
-        self.decoder = model.AttnDecoderLSTM(args.aemb, args.rnn_dim, args.dropout, feature_size=self.feature_size + args.angle_feat_size).cuda()
+        self.decoder = model.AttnDecoderLSTM(args.aemb, args.rnn_dim, args.dropout).cuda()
         self.critic = model.Critic().cuda()
         self.models = (self.encoder, self.decoder, self.critic)
 
@@ -346,7 +345,10 @@ class Seq2SeqAgent(BaseAgent):
                 self.env.env.sims[idx].makeAction(*self.env_actions[name])
             state = self.env.env.sims[idx].getState()
             if traj is not None:
-                traj[i]['path'].append((state.location.viewpointId, state.heading, state.elevation))
+                if args.analizePath:
+                    traj[i]['path'].append((state.location.viewpointId, state.heading, state.elevation, state.viewIndex))
+                else:
+                    traj[i]['path'].append((state.location.viewpointId, state.heading, state.elevation))
         if perm_idx is None:
             perm_idx = range(len(perm_obs))
         for i, idx in enumerate(perm_idx):
@@ -421,10 +423,16 @@ class Seq2SeqAgent(BaseAgent):
             last_dist[i] = ob['distance']
 
         # Record starting point
-        traj = [{
-            'instr_id': ob['instr_id'],
-            'path': [(ob['viewpoint'], ob['heading'], ob['elevation'])]
-        } for ob in perm_obs]
+        if args.analizePath:
+            traj = [{
+                'instr_id': ob['instr_id'],
+                'path': [(ob['viewpoint'], ob['heading'], ob['elevation'], ob['viewIndex'])]
+            } for ob in perm_obs]
+        else:
+            traj = [{
+                'instr_id': ob['instr_id'],
+                'path': [(ob['viewpoint'], ob['heading'], ob['elevation'])]
+            } for ob in perm_obs]
 
         # For test result submission
         visited = [set() for _ in perm_obs]
@@ -481,10 +489,6 @@ class Seq2SeqAgent(BaseAgent):
                                                ctx, ctx_mask,feature=f_t,
                                                sparseObj=sparseObj,denseObj=denseObj,
                                                ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None))
-                # self.decoder(input_a_t, f_t, candidate_feat,
-                #                                h_t, h1, candidate_feat,
-                #                                ctx, ctx_mask,
-                #                                already_dropfeat=(speaker is not None))
             v_ctx.append(h_t)
             vl_ctx.append(h1)
             hidden_states.append(h_t)
@@ -618,10 +622,6 @@ class Seq2SeqAgent(BaseAgent):
                 f_t[..., :-args.angle_feat_size] *= noise
                 if args.denseObj:
                     denseObj *= noise
-            # input_a_t, f_t, candidate_feat, candidate_leng = self.get_input_feat(perm_obs)
-            # if speaker is not None:
-            #     candidate_feat[..., :-args.angle_feat_size] *= noise
-            #     f_t[..., :-args.angle_feat_size] *= noise
             last_h_, _, _, _ = self.decoder(input_a_t, candidate_feat,
                                             h_t, h1, c_t,
                                             ctx, ctx_mask,
