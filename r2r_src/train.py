@@ -462,10 +462,7 @@ def train_val():
     # load object feature
     obj_s_feat = None
     if args.sparseObj:
-        print("Start loading the object sparse feature")
-        start = time.time()
-        obj_s_feat = np.load(sparse_obj_feat,allow_pickle=True).item()
-        print("Finish Loading the object sparse feature from %s in %0.4f seconds" % (sparse_obj_feat, time.time() - start))
+        obj_s_feat = utils.read_obj_sparse_features(sparse_obj_feat, args.objthr)
 
     obj_d_feat = None
     if args.denseObj:
