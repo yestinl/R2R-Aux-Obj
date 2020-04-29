@@ -10,7 +10,6 @@ pybind11
 cmake
 CMakeFiles
 CMakeLists.txt
-connectivity
 cmake_install.cmake 
 include
 libMatterSim.so
