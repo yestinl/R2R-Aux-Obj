@@ -14,4 +14,4 @@ environment:
         experiments: [10993]
 
 run:
-    cmd: python3.6 r2r_src/train.py --speWeight 1 --proWeight 1 --angWeight 2 --feaWeight 1 --submit --upload --denseObj --catRN --objthr 0.99 --name denseObj_RN_99_4
+    cmd: python3.6 r2r_src/train.py --speWeight 1 --proWeight 1 --angWeight 2 --feaWeight 1 --submit --upload --sparseObj --catRN --objthr 0.98 --name sparseObj_RN_98_0

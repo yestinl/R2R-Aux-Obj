@@ -369,7 +369,7 @@ def read_obj_sparse_features(sparse_obj_feat, th):
     start = time.time()
     obj_s_feat = np.load(sparse_obj_feat, allow_pickle=True).item()
     viewpointIds = load_viewpointids()
-    sum_feature = np.zeros(512)
+    sum_feature = np.zeros(300)
     sum_e = np.zeros(4)
     sum_h = np.zeros(4)
     obj_num = 0
@@ -427,13 +427,13 @@ def read_obj_sparse_features(sparse_obj_feat, th):
                                   'text': 'average', 'viewIndex': None, 'prob': None})
             none_num +=1
         if th == 1:
-            viewpoint_object.append({'angles_h': np.zeros(4), 'angles_e': np.zeros(4), 'features': np.zeros(512),
+            viewpoint_object.append({'angles_h': np.zeros(4), 'angles_e': np.zeros(4), 'features': np.zeros(300),
                                      'text': 'average', 'viewIndex': None, 'prob': None})
             none_num +=1
         num_obj = len(viewpoint_object)
         concat_angles_h = np.zeros((num_obj, 4), np.float32)
         concat_angles_e = np.zeros((num_obj, 4), np.float32)
-        concat_dense_feature = np.zeros((num_obj, 2048))
+        concat_dense_feature = np.zeros((num_obj, 300))
         concat_text = [None] * num_obj
         concat_viewIndex = [None] * num_obj
         concat_prob = [None] * num_obj
@@ -454,9 +454,8 @@ def read_obj_sparse_features(sparse_obj_feat, th):
         }
 
 
-    print("Finish Loading the prob larger than %0.2f dense object dense feature from %s and %s in %0.4f seconds" % (
-                                                th,dense_obj_feat1, dense_obj_feat2,
-                                                                    time.time() - start))
+    print("Finish Loading the prob larger than %0.2f sparse object feature from %s in %0.4f seconds" % (
+                                                th,sparse_obj_feat,time.time() - start))
     print("%d viewpoint get None object prob > %0.2f" %(none_num, th))
     return objs
 

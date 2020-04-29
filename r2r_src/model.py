@@ -204,7 +204,7 @@ class AttnDecoderLSTM(nn.Module):
                 sparseObj[..., :-args.angle_bbox_size] = self.drop_env(sparseObj[..., :-args.angle_bbox_size])
             if denseObj is not None:
                 # denseObj[..., :-args.angle_feat_size] = self.drop_env(denseObj[..., :-args.angle_feat_size])
-                denseObj[..., -args.angle_bbox_size] = self.drop_env(denseObj[..., -args.angle_bbox_size])
+                denseObj[..., -args.angle_feat_size] = self.drop_env(denseObj[..., -args.angle_feat_size])
             if feature is not None:
                 # Dropout the raw feature as a common regularization
                 feature[..., :-args.angle_feat_size] = self.drop_env(
