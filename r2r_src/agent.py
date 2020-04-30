@@ -459,7 +459,11 @@ class Seq2SeqAgent(BaseAgent):
         h_0 = h_t
         fea_loss = 0
         ang_loss = 0
-        h1 = torch.cat((h_t,h_t),1)
+        h1 = h_t
+        h1_v = h_t
+        h1_o = h_t
+        c_t_v = c_t
+        c_t_o = c_t
         for t in range(self.episode_len):
             ObjFeature_mask = None
             sparseObj = None
@@ -493,8 +497,8 @@ class Seq2SeqAgent(BaseAgent):
                     denseObj[...,:-args.angle_feat_size] *= noise
 
             if args.longCat:
-                h_t_v,h_t_o, c_t_v, c_t_o, logit, h1 = self.decoder(
-                    input_a_t, candidate_feat, h1, c_t_v, c_t_o,
+                h_t_v,h_t_o, c_t_v, c_t_o, logit, h1_v, h1_o = self.decoder(
+                    input_a_t, candidate_feat, h1_v, h1_o, c_t_v, c_t_o,
                     ctx, ctx_mask,feature=f_t,
                     sparseObj=sparseObj,denseObj=denseObj,
                     ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None)
@@ -643,19 +647,19 @@ class Seq2SeqAgent(BaseAgent):
                     denseObj[..., :-args.angle_feat_size] *= noise
 
             if args.longCat:
-                last_h_, _, _, _, _, _ = self.decoder(
-                    input_a_t, candidate_feat, h1, c_t_v, c_t_o,
+                last_h_, _, _, _, _, _, _ = self.decoder(
+                    input_a_t, candidate_feat, h1_v, h1_o, c_t_v, c_t_o,
                     ctx, ctx_mask,feature=f_t,
                     sparseObj=sparseObj,denseObj=denseObj,
                     ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None)
                 )
             else:
-                last_h_, _, _, _ = self.decoder(input_a_t, candidate_feat,
-                                                h_t, h1, c_t,
-                                                ctx, ctx_mask,
-                                                feature=f_t,
-                                                sparseObj=sparseObj, denseObj=denseObj,
-                                                ObjFeature_mask=ObjFeature_mask, already_dropfeat=(speaker is not None))
+                last_h_, _, _, _ = self.decoder(
+                    input_a_t, candidate_feat, h1_v, h1_o, c_t_v, c_t_o,
+                    ctx, ctx_mask,feature=f_t,
+                    sparseObj=sparseObj,denseObj=denseObj,
+                    ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None)
+                )
             rl_loss = 0.
 
             # NOW, A2C!!!

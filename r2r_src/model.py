@@ -302,8 +302,8 @@ class AttnDecoderLSTM_LongCat(nn.Module):
         )
         self.drop = nn.Dropout(p=dropout_ratio)
         self.drop_env = nn.Dropout(p=args.featdropout)
-        self.lstm_v = nn.LSTMCell(feature_size, hidden_size)
-        self.lstm_o = nn.LSTMCell(feature_size, hidden_size)
+        self.lstm_v = nn.LSTMCell(embedding_size+feature_size, hidden_size)
+        self.lstm_o = nn.LSTMCell(embedding_size+feature_size, hidden_size)
         self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
         if args.denseObj:
             self.dense_att_layer = SoftDotAttention(hidden_size, args.feature_size + args.angle_feat_size)
@@ -312,10 +312,10 @@ class AttnDecoderLSTM_LongCat(nn.Module):
             self.sparse_att_layer = SoftDotAttention(hidden_size, args.glove_emb+args.angle_bbox_size)
         self.attention_layer_v = SoftDotAttention(hidden_size, hidden_size)
         self.attention_layer_o = SoftDotAttention(hidden_size, hidden_size)
-        self.candidate_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
+        self.candidate_att_layer = SoftDotAttention(hidden_size*2, args.feature_size+args.angle_feat_size)
 
     def forward(self, action, cand_feat,
-                prev_h1, c_0_v, c_0_o,
+                prev_h1_v,prev_h1_o, c_0_v, c_0_o,
                 ctx, ctx_mask=None,feature=None, sparseObj=None,denseObj=None,ObjFeature_mask=None,
                 already_dropfeat=False):
         '''
@@ -346,18 +346,19 @@ class AttnDecoderLSTM_LongCat(nn.Module):
                 feature[..., :-args.angle_feat_size] = self.drop_env(
                     feature[..., :-args.angle_feat_size])  # Do not drop the last args.angle_feat_size (position feat)
 
-        prev_h1_drop = self.drop(prev_h1)
+        prev_h1_v_drop = self.drop(prev_h1_v)
+        prev_h1_o_drop = self.drop(prev_h1_o)
 
-        if sparseObj is not None:
-            sparse_attn_feat, _ = self.sparse_att_layer(prev_h1_drop, sparseObj, mask=ObjFeature_mask,
-                                                        output_tilde=False)
+        # if sparseObj is not None:
+        #     sparse_attn_feat, _ = self.sparse_att_layer(prev_h1_drop, sparseObj, mask=ObjFeature_mask,
+        #                                                 output_tilde=False)
         if denseObj is not None:
             # denseObj[..., :-args.angle_feat_size] = self.drop_env(denseObj[..., :-args.angle_feat_size])
-            dense_attn_feat, _ = self.dense_att_layer(prev_h1_drop, denseObj, mask=ObjFeature_mask,
+            dense_attn_feat, _ = self.dense_att_layer(prev_h1_o_drop, denseObj, mask=ObjFeature_mask,
                                                       output_tilde=False)  # input:(64,512)(64,k,2176) output:(64,2176)
         if feature is not None:
             # Dropout the raw feature as a common regularization
-            RN_attn_feat, _ = self.feat_att_layer(prev_h1_drop, feature,
+            RN_attn_feat, _ = self.feat_att_layer(prev_h1_v_drop, feature,
                                                   output_tilde=False)  # input: (64,512), (64,36,2176) output:(64,2176)
 
         # if args.sparseObj and(not args.denseObj):
@@ -381,19 +382,19 @@ class AttnDecoderLSTM_LongCat(nn.Module):
         # attn_feat, _ = self.feat_att_layer(prev_h1_drop, feature, output_tilde=False)
 
         concat_input_v = torch.cat((action_embeds, RN_attn_feat), 1) # (batch, embedding_size+feature_size)
-        h_1_v, c_1_v = self.lstm_v(concat_input_v, (prev_h1, c_0_o))
+        h_1_v, c_1_v = self.lstm_v(concat_input_v, (prev_h1_v, c_0_o))
         h_1_drop_v = self.drop(h_1_v)
         h_tilde_v, _= self.attention_layer_v(h_1_drop_v, ctx, ctx_mask)
-        h_tilde_v_drop = self.drop(h_tilde_v)
+        # h_tilde_v_drop = self.drop(h_tilde_v)
 
         concat_input_o = torch.cat((action_embeds, dense_attn_feat), 1)
-        h_1_o, c_1_o = self.lstm_o(concat_input_o, (prev_h1, c_0_o))
+        h_1_o, c_1_o = self.lstm_o(concat_input_o, (prev_h1_o, c_0_o))
         h_1_o_drop = self.drop(h_1_o)
         h_tilde_o, _ = self.attention_layer_o(h_1_o_drop, ctx, ctx_mask)
-        h_tilde_o_drop = self.drop(h_tilde_o)
+        # h_tilde_o_drop = self.drop(h_tilde_o)
 
         h_tilde = torch.cat((h_tilde_v, h_tilde_o), 1)
-        h_tilde_drop = torch.drop(h_tilde)
+        h_tilde_drop = self.drop(h_tilde)
 
 
         if not already_dropfeat:
@@ -401,7 +402,7 @@ class AttnDecoderLSTM_LongCat(nn.Module):
 
         _, logit = self.candidate_att_layer(h_tilde_drop, cand_feat, output_prob=False)
 
-        return h_1_v, h_1_o, c_1_v, c_1_o, logit, h_tilde
+        return h_1_v, h_1_o, c_1_v, c_1_o, logit, h_tilde_v, h_tilde_o
 
 
 class MatchingNetwork(nn.Module):
