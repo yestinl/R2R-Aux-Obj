@@ -50,7 +50,7 @@ if args.upload:
     sparse_obj_feat = get_sync_dir(os.path.join(args.upload_path, args.SPARSE_OBJ_FEATURES))
     dense_obj_feat1 = get_sync_dir(os.path.join(args.upload_path, args.DENSE_OBJ_FEATURES1))
     dense_obj_feat2 = get_sync_dir(os.path.join(args.upload_path, args.DENSE_OBJ_FEATURES2))
-    bbox = os.path.join(args.upload_path, args.BBOX_FEATURES)
+    bbox = get_sync_dir(os.path.join(args.upload_path, args.BBOX_FEATURES))
 
 else:
     train_vocab = os.path.join(args.R2R_Aux_path,args.TRAIN_VOCAB)

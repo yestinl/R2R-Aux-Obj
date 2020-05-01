@@ -375,14 +375,16 @@ class R2RBatch():
             if args.denseObj:
                 if odf['concat_viewIndex'][0] is None:
                     obs_dict['obj_d_feature'] = np.concatenate(
-                        (odf['concat_feature'], np.expand_dims(self.angle_avg_feature[base_view_id],axis=0)),axis=1)
+                        (odf['concat_feature'], np.tile(odf['concat_bbox'],args.angle_feat_size//4),
+                         np.expand_dims(self.angle_avg_feature[base_view_id],axis=0)),axis=1)
                 else:
-                    obs_dict['obj_d_feature'] = np.zeros((len(odf['concat_feature']),args.angle_feat_size+args.feature_size))
+                    obs_dict['obj_d_feature'] = np.zeros((len(odf['concat_feature']),args.angle_feat_size*2+args.feature_size))
                     for k,v in enumerate(odf['concat_viewIndex']):
                         obs_dict['obj_d_feature'][k] = np.concatenate(
-                            (odf['concat_feature'][k], self.angle_feature[base_view_id][v]))
-                obs_dict['obj_d_feature'] = np.concatenate(
-                    (obs_dict['obj_d_feature'], np.tile(odf['concat_bbox'],args.angle_feat_size//4)),axis=1)
+                            (odf['concat_feature'][k], np.tile(odf['concat_bbox'][k],args.angle_feat_size//4),
+                             self.angle_feature[base_view_id][v]))
+                # obs_dict['obj_d_feature'] = np.concatenate(
+                #     (obs_dict['obj_d_feature'], np.tile(odf['concat_bbox'],args.angle_feat_size//4)),axis=1)
                 # obs_dict['bbox'] = odf['concat_bbox']
                 # obs_dict['bbox_angle_e'] = odf['concat_angles_e']
             obs.append(obs_dict)
