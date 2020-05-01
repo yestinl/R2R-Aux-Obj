@@ -185,6 +185,7 @@ class R2RBatch():
         self._load_nav_graphs()
 
         self.angle_feature = utils.get_all_point_angle_feature()
+        self.angle_avg_feature = utils.get_avg_point_angle_feature()
         self.sim = utils.new_simulator()
         self.buffered_state_dict = {}
 
@@ -372,9 +373,18 @@ class R2RBatch():
                 obs_dict['bbox_angle_h'] = osf['concat_angles_h']
                 obs_dict['bbox_angle_e'] = osf['concat_angles_e']
             if args.denseObj:
-                obs_dict['obj_d_feature'] = odf['concat_feature']
-                obs_dict['bbox_angle_h'] = odf['concat_angles_h']
-                obs_dict['bbox_angle_e'] = odf['concat_angles_e']
+                if odf['concat_viewIndex'][0] is None:
+                    obs_dict['obj_d_feature'] = np.concatenate(
+                        (odf['concat_feature'], np.expand_dims(self.angle_avg_feature[base_view_id],axis=0)),axis=1)
+                else:
+                    obs_dict['obj_d_feature'] = np.zeros((len(odf['concat_feature']),args.angle_feat_size+args.feature_size))
+                    for k,v in enumerate(odf['concat_viewIndex']):
+                        obs_dict['obj_d_feature'][k] = np.concatenate(
+                            (odf['concat_feature'][k], self.angle_feature[base_view_id][v]))
+                obs_dict['obj_d_feature'] = np.concatenate(
+                    (obs_dict['obj_d_feature'], np.tile(odf['concat_bbox'],args.angle_feat_size//4)),axis=1)
+                # obs_dict['bbox'] = odf['concat_bbox']
+                # obs_dict['bbox_angle_e'] = odf['concat_angles_e']
             obs.append(obs_dict)
             if 'instr_encoding' in item:
                 obs[-1]['instr_encoding'] = item['instr_encoding']

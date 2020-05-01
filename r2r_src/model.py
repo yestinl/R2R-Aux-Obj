@@ -144,7 +144,7 @@ class AttnDecoderLSTM(nn.Module):
             if args.catRN:
                 print("Train in denseObj cat RN mode")
                 # feature_size = args.feature_size*2+args.angle_feat_size*2 # 4352
-                feature_size = args.feature_size * 2 + args.angle_feat_size * 2  # 4352
+                feature_size = args.feature_size * 2 + args.angle_feat_size * 3  # 4352
                 # self.att_fc = nn.Linear(feature_size, args.feature_size) # run denseObj_RN_FC_0
             if args.addRN:
                 print("Train in denseObj add RN mode")
@@ -171,7 +171,7 @@ class AttnDecoderLSTM(nn.Module):
         self.lstm = nn.LSTMCell(embedding_size+feature_size, hidden_size)
         self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
         if args.denseObj:
-            self.dense_att_layer = SoftDotAttention(hidden_size, args.feature_size + args.angle_feat_size)
+            self.dense_att_layer = SoftDotAttention(hidden_size, args.feature_size + args.angle_feat_size*2)
             # self.dense_att_layer = SoftDotAttention(hidden_size, args.feature_size)
         if args.sparseObj:
             self.sparse_att_layer = SoftDotAttention(hidden_size, args.glove_emb+args.angle_bbox_size)
@@ -204,7 +204,7 @@ class AttnDecoderLSTM(nn.Module):
                 sparseObj[..., :-args.angle_bbox_size] = self.drop_env(sparseObj[..., :-args.angle_bbox_size])
             if denseObj is not None:
                 # denseObj[..., :-args.angle_feat_size] = self.drop_env(denseObj[..., :-args.angle_feat_size])
-                denseObj[..., -args.angle_feat_size] = self.drop_env(denseObj[..., -args.angle_feat_size])
+                denseObj[..., -args.angle_feat_size*2] = self.drop_env(denseObj[..., -args.angle_feat_size*2])
             if feature is not None:
                 # Dropout the raw feature as a common regularization
                 feature[..., :-args.angle_feat_size] = self.drop_env(

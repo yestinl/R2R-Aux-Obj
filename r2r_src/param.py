@@ -91,7 +91,7 @@ class Param:
         self.parser.add_argument("--modmat", action='store_const', default=False, const=True)
 
         # obj
-        self.parser.add_argument('--objdir', type=str, default='0_85')
+        self.parser.add_argument('--objdir', type=str, default='0_8')
         self.parser.add_argument("--objthr", dest='objthr', type=float, default=0.99)
         self.parser.add_argument("--angleObjSize", dest="angle_bbox_size", type=int, default=8)
         self.parser.add_argument("--gloveEmb", dest="glove_emb", type=int, default=300)
@@ -136,6 +136,7 @@ args.features_fast = 'img_features/ResNet-152-imagenet-fast.tsv'
 args.SPARSE_OBJ_FEATURES = 'obj_features/%s/panorama_objs_Features_nms_%s.npy'%(args.objdir, args.objdir)
 args.DENSE_OBJ_FEATURES1 = 'obj_features/%s/panorama_objs_DenseFeatures_nms1_%s.npy'%(args.objdir, args.objdir)
 args.DENSE_OBJ_FEATURES2 = 'obj_features/%s/panorama_objs_DenseFeatures_nms2_%s.npy'%(args.objdir, args.objdir)
+args.BBOX_FEATURES = 'obj_features/%s/panorama_objs_bbox_%s.npy'%(args.objdir, args.objdir)
 args.log_dir = 'snap/%s' % args.name
 args.R2R_Aux_path =  '/data3/lyx/project/R2R-Aux'
 args.upload_path = 'lyx'

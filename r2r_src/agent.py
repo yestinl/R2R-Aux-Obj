@@ -216,12 +216,11 @@ class Seq2SeqAgent(BaseAgent):
                                                                                             ob['bbox_angle_h'], axis=1), args.angle_feat_size//8)
                 return Variable(torch.from_numpy(denseObj), requires_grad=False).cuda(), Obj_leng
             else:
-                denseObj = np.zeros((len(obs), max(Obj_leng), args.feature_size+args.angle_feat_size),
+                denseObj = np.zeros((len(obs), max(Obj_leng), args.feature_size+args.angle_feat_size*2),
                                     dtype=np.float32)
                 for i, ob in enumerate(obs):
-                    denseObj[i, :Obj_leng[i], :args.feature_size] = ob['obj_d_feature']
-                    denseObj[i, :Obj_leng[i], -args.angle_feat_size:] = np.tile(np.append(ob['bbox_angle_e'],
-                                                                                            ob['bbox_angle_h'], axis=1), args.angle_feat_size//8)
+                    denseObj[i, :Obj_leng[i], :] = ob['obj_d_feature']
+                    # denseObj[i, :Obj_leng[i], -args.angle_feat_size:-args.angle_feat_size/2] = np.tile(ob['concat_bbox'], (args.angle_feat_size/2)//8)
                 features = np.empty((len(obs), args.views, self.feature_size + args.angle_feat_size),
                                     dtype=np.float32)
                 for i, ob in enumerate(obs):
@@ -654,12 +653,11 @@ class Seq2SeqAgent(BaseAgent):
                     ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None)
                 )
             else:
-                last_h_, _, _, _ = self.decoder(
-                    input_a_t, candidate_feat, h1_v, h1_o, c_t_v, c_t_o,
-                    ctx, ctx_mask,feature=f_t,
-                    sparseObj=sparseObj,denseObj=denseObj,
-                    ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None)
-                )
+                last_h_, _, _, _ = self.decoder(input_a_t,candidate_feat,
+                                               h_t, h1, c_t,
+                                               ctx, ctx_mask,feature=f_t,
+                                               sparseObj=sparseObj,denseObj=denseObj,
+                                               ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None))
             rl_loss = 0.
 
             # NOW, A2C!!!

@@ -50,6 +50,7 @@ if args.upload:
     sparse_obj_feat = get_sync_dir(os.path.join(args.upload_path, args.SPARSE_OBJ_FEATURES))
     dense_obj_feat1 = get_sync_dir(os.path.join(args.upload_path, args.DENSE_OBJ_FEATURES1))
     dense_obj_feat2 = get_sync_dir(os.path.join(args.upload_path, args.DENSE_OBJ_FEATURES2))
+    bbox = os.path.join(args.upload_path, args.BBOX_FEATURES)
 
 else:
     train_vocab = os.path.join(args.R2R_Aux_path,args.TRAIN_VOCAB)
@@ -61,6 +62,7 @@ else:
     sparse_obj_feat = os.path.join(args.R2R_Aux_path, args.SPARSE_OBJ_FEATURES)
     dense_obj_feat1 = os.path.join(args.R2R_Aux_path, args.DENSE_OBJ_FEATURES1)
     dense_obj_feat2 = os.path.join(args.R2R_Aux_path, args.DENSE_OBJ_FEATURES2)
+    bbox = os.path.join(args.R2R_Aux_path, args.BBOX_FEATURES)
 
 if args.fast_train:
     name, ext = os.path.splitext(features)
@@ -462,11 +464,11 @@ def train_val():
     # load object feature
     obj_s_feat = None
     if args.sparseObj:
-        obj_s_feat = utils.read_obj_sparse_features(sparse_obj_feat, args.objthr)
+        obj_s_feat = utils.read_obj_sparse_features(sparse_obj_feat, bbox, args.objthr)
 
     obj_d_feat = None
     if args.denseObj:
-        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, args.objthr)
+        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, args.objthr)
 
     featurized_scans = set([key.split("_")[0] for key in list(feat_dict.keys())])
 
