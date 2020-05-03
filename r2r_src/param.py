@@ -100,6 +100,7 @@ class Param:
         self.parser.add_argument("--addRN", dest='addRN', action='store_const', default=False, const=True)
         self.parser.add_argument("--denseObj", dest='denseObj', action='store_const', default=False, const=True)
         self.parser.add_argument("--longCat", dest='longCat', action='store_const', default=False, const=True)
+        self.parser.add_argument("--objInputMode", type=str, default="gate")  # gate,attn
 
         # visualize
         self.parser.add_argument("--analizePath", dest='analizePath', action='store_const', default=False, const=True)

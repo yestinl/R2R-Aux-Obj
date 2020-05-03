@@ -125,6 +125,51 @@ class SoftDotAttention(nn.Module):
         else:
             return weighted_context, attn
 
+class Gate(nn.Module):
+    '''Soft Dot Attention.
+
+    Ref: http://www.aclweb.org/anthology/D15-1166
+    Adapted from PyTorch OPEN NMT.
+    '''
+
+    def __init__(self, query_dim, ctx_dim):
+        '''Initialize layer.'''
+        super(Gate, self).__init__()
+        self.linear_in = nn.Linear(query_dim, ctx_dim, bias=False)
+        self.sg = nn.Sigmoid()
+        self.linear_out = nn.Linear(query_dim + ctx_dim, query_dim, bias=False)
+        self.tanh = nn.Tanh()
+
+    def forward(self, h, context, mask=None,
+                output_tilde=True, output_prob=True):
+        '''Propagate h through the network.
+
+        h: batch x dim
+        context: batch x seq_len x dim
+        mask: batch x seq_len indices to be masked
+        '''
+        target = self.linear_in(h).unsqueeze(2)  # batch x dim x 1
+
+        # Get attention
+        attn = torch.bmm(context, target).squeeze(2)  # batch x seq_len
+        logit = attn
+
+        if mask is not None:
+            # -Inf masking prior to the softmax
+            attn.masked_fill_(mask.bool(), -float('inf'))
+        attn = self.sg(attn)    # There will be a bug here, but it's actually a problem in torch source code.
+        attn3 = attn.view(attn.size(0), 1, attn.size(1))  # batch x 1 x seq_len
+
+        weighted_context = torch.bmm(attn3, context).squeeze(1)  # batch x dim
+        if not output_prob:
+            attn = logit
+        if output_tilde:
+            h_tilde = torch.cat((weighted_context, h), 1)
+            h_tilde = self.tanh(self.linear_out(h_tilde))
+            return h_tilde, attn
+        else:
+            return weighted_context, attn
+
 
 class AttnDecoderLSTM(nn.Module):
     ''' An unrolled LSTM with attention over instructions for decoding navigation actions. '''
@@ -171,7 +216,11 @@ class AttnDecoderLSTM(nn.Module):
         self.lstm = nn.LSTMCell(embedding_size+feature_size, hidden_size)
         self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
         if args.denseObj:
-            self.dense_att_layer = SoftDotAttention(hidden_size, args.feature_size + args.angle_feat_size*2)
+            if args.objInputMode == 'gate':
+                self.dense_input_layer = Gate(hidden_size, args.feature_size + args.angle_feat_size*2)
+            if args.objInputMode == 'attn':
+                self.dense_input_layer = SoftDotAttention(hidden_size, args.feature_size + args.angle_feat_size * 2)
+
             # self.dense_att_layer = SoftDotAttention(hidden_size, args.feature_size)
         if args.sparseObj:
             self.sparse_att_layer = SoftDotAttention(hidden_size, args.glove_emb+args.angle_bbox_size)
@@ -217,8 +266,13 @@ class AttnDecoderLSTM(nn.Module):
                                                         output_tilde=False)
         if denseObj is not None:
             # denseObj[..., :-args.angle_feat_size] = self.drop_env(denseObj[..., :-args.angle_feat_size])
-            dense_attn_feat, _ = self.dense_att_layer(prev_h1_drop, denseObj, mask=ObjFeature_mask,
-                                                      output_tilde=False)  # input:(64,512)(64,k,2176) output:(64,2176)
+            if args.objInputMode == 'attn':
+                dense_input_feat, _ = self.dense_input_layer(prev_h1_drop, denseObj, mask=ObjFeature_mask,
+                                                          output_tilde=False)  # input:(64,512)(64,k,2176) output:(64,2176)
+            if args.objInputMode == 'gate':
+                dense_input_feat, _ = self.dense_input_layer(prev_h1_drop, denseObj, mask=ObjFeature_mask,
+                                                             output_tilde=False)
+
         if feature is not None:
             # Dropout the raw feature as a common regularization
             RN_attn_feat, _ = self.feat_att_layer(prev_h1_drop, feature,
@@ -229,17 +283,17 @@ class AttnDecoderLSTM(nn.Module):
             if args.catRN:
                 attn_feat = torch.cat([RN_attn_feat,sparse_attn_feat],1)
         elif args.denseObj and (not args.sparseObj):
-            attn_feat = dense_attn_feat
+            attn_feat = dense_input_feat
             if args.catRN:
-                attn_feat = torch.cat([RN_attn_feat, dense_attn_feat], 1) #(64,4352)
+                attn_feat = torch.cat([RN_attn_feat, dense_input_feat], 1) #(64,4352)
                 # attn_feat = self.att_fc(attn_feat) # run denseObj_RN_FC_0
             if args.addRN:
-                attn_feat = dense_attn_feat+RN_attn_feat[:,:args.feature_size]
+                attn_feat = dense_input_feat+RN_attn_feat[:,:args.feature_size]
                 attn_feat = torch.cat([attn_feat, RN_attn_feat[:,args.feature_size:]], 1)
         elif args.denseObj and args.sparseObj:
-            attn_feat = torch.cat([dense_attn_feat,sparse_attn_feat], 1)
+            attn_feat = torch.cat([dense_input_feat,sparse_attn_feat], 1)
             if args.catRN:
-                attn_feat = torch.cat([RN_attn_feat, dense_attn_feat, sparse_attn_feat],1)
+                attn_feat = torch.cat([RN_attn_feat, dense_input_feat, sparse_attn_feat],1)
         else:
             attn_feat = RN_attn_feat
         # attn_feat, _ = self.feat_att_layer(prev_h1_drop, feature, output_tilde=False)
