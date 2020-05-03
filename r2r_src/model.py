@@ -188,12 +188,16 @@ class AttnDecoderLSTM(nn.Module):
             feature_size = args.feature_size+args.angle_feat_size   # 2176
             if args.catRN:
                 print("Train in denseObj cat RN mode")
-                # feature_size = args.feature_size*2+args.angle_feat_size*2 # 4352
-                feature_size = args.feature_size * 2 + args.angle_feat_size * 3  # 4352
+                feature_size = args.feature_size*2+args.angle_feat_size*2 # 4352
+                if args.catAngleBbox:
+                    print("Train in denseObj catAngleBbox mode")
+                    feature_size = args.feature_size * 2 + args.angle_feat_size * 3  # 4352
                 # self.att_fc = nn.Linear(feature_size, args.feature_size) # run denseObj_RN_FC_0
             if args.addRN:
                 print("Train in denseObj add RN mode")
                 feature_size = args.feature_size + args.angle_feat_size
+
+
         elif args.denseObj and args.sparseObj:
             print("Train in sparseObj + denseObj mode")
             feature_size = args.feature_size+args.angle_feat_size+args.glove_emb+args.angle_bbox_size # 2484
@@ -217,10 +221,17 @@ class AttnDecoderLSTM(nn.Module):
         self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
         if args.denseObj:
             if args.objInputMode == 'gate':
-                self.dense_input_layer = Gate(hidden_size, args.feature_size + args.angle_feat_size*2)
+                print("Train in gate mode.")
+                if args.catAngleBbox:
+                    self.dense_input_layer = Gate(hidden_size, args.feature_size + args.angle_feat_size*2)
+                else:
+                    self.dense_input_layer = Gate(hidden_size, args.feature_size)
             if args.objInputMode == 'attn':
-                self.dense_input_layer = SoftDotAttention(hidden_size, args.feature_size + args.angle_feat_size * 2)
-
+                print("Train in attn mode.")
+                if args.catAngleBbox:
+                    self.dense_input_layer = SoftDotAttention(hidden_size, args.feature_size + args.angle_feat_size * 2)
+                else:
+                    self.dense_input_layer = SoftDotAttention(hidden_size, args.feature_size)
             # self.dense_att_layer = SoftDotAttention(hidden_size, args.feature_size)
         if args.sparseObj:
             self.sparse_att_layer = SoftDotAttention(hidden_size, args.glove_emb+args.angle_bbox_size)

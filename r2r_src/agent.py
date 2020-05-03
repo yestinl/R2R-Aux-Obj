@@ -216,8 +216,12 @@ class Seq2SeqAgent(BaseAgent):
                                                                                             ob['bbox_angle_h'], axis=1), args.angle_feat_size//8)
                 return Variable(torch.from_numpy(denseObj), requires_grad=False).cuda(), Obj_leng
             else:
-                denseObj = np.zeros((len(obs), max(Obj_leng), args.feature_size+args.angle_feat_size*2),
-                                    dtype=np.float32)
+                if args.catAngleBbox:
+                    denseObj = np.zeros((len(obs), max(Obj_leng), args.feature_size+args.angle_feat_size*2),
+                                        dtype=np.float32)
+                else:
+                    denseObj = np.zeros((len(obs), max(Obj_leng), args.feature_size),
+                                        dtype=np.float32)
                 for i, ob in enumerate(obs):
                     denseObj[i, :Obj_leng[i], :] = ob['obj_d_feature']
                     # denseObj[i, :Obj_leng[i], -args.angle_feat_size:-args.angle_feat_size/2] = np.tile(ob['concat_bbox'], (args.angle_feat_size/2)//8)
@@ -306,16 +310,6 @@ class Seq2SeqAgent(BaseAgent):
         else:
             f_t = self._feature_variable(obs)  # Image features from obs
             return input_a_t, f_t, candidate_feat, candidate_leng
-        
-        # input_a_t = np.zeros((len(obs), args.angle_feat_size), np.float32)
-        # for i, ob in enumerate(obs):
-        #     input_a_t[i] = utils.angle_feature(ob['heading'], ob['elevation'])
-        # input_a_t = torch.from_numpy(input_a_t).cuda()
-        # 
-        # f_t = self._feature_variable(obs)      # Image features from obs
-        # candidate_feat, candidate_leng = self._candidate_variable(obs)
-        # 
-        # return input_a_t, f_t, candidate_feat, candidate_leng
 
     def _teacher_action(self, obs, ended):
         """
@@ -493,7 +487,10 @@ class Seq2SeqAgent(BaseAgent):
                 candidate_feat[..., :-args.angle_feat_size] *= noise
                 f_t[..., :-args.angle_feat_size] *= noise
                 if args.denseObj:
-                    denseObj[...,:-args.angle_feat_size] *= noise
+                    if args.catAngleBbox:
+                        denseObj[...,:-args.angle_feat_size*2] *= noise
+                    else:
+                        denseObj *= noise
 
             if args.longCat:
                 h_t_v,h_t_o, c_t_v, c_t_o, logit, h1_v, h1_o = self.decoder(
@@ -643,7 +640,10 @@ class Seq2SeqAgent(BaseAgent):
                 candidate_feat[..., :-args.angle_feat_size] *= noise
                 f_t[..., :-args.angle_feat_size] *= noise
                 if args.denseObj:
-                    denseObj[..., :-args.angle_feat_size] *= noise
+                    if args.catAngleBbox:
+                        denseObj[..., :-args.angle_feat_size * 2] *= noise
+                    else:
+                        denseObj *= noise
 
             if args.longCat:
                 last_h_, _, _, _, _, _, _ = self.decoder(
