@@ -376,7 +376,7 @@ class R2RBatch():
                 if args.catAngleBbox:
                     if odf['concat_text'][0] == 'zero':
                         obs_dict['obj_d_feature'] = np.concatenate(
-                            (odf['concat_feature'],np.zeros(args.angle_feat_size*2)),axis=1)
+                            (odf['concat_feature'],np.zeros((1,args.angle_feat_size*2))),axis=1)
                     elif odf['concat_text'][0] == 'average':
                         obs_dict['obj_d_feature'] = np.concatenate(
                             (odf['concat_feature'], np.tile(odf['concat_bbox'],args.angle_feat_size//4),
