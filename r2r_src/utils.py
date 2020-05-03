@@ -336,7 +336,7 @@ def read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, th):
             none_num +=1
         if th == 1:
             viewpoint_object.append({'bbox': np.zeros(4),'features': np.zeros(2048),
-                                     'text': 'average', 'viewIndex': None, 'prob': None})
+                                     'text': 'zero', 'viewIndex': None, 'prob': None})
             none_num +=1
         num_obj = len(viewpoint_object)
         concat_bbox = np.zeros((num_obj, 4), np.float32)

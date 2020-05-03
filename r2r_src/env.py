@@ -374,7 +374,10 @@ class R2RBatch():
                 obs_dict['bbox_angle_e'] = osf['concat_angles_e']
             if args.denseObj:
                 if args.catAngleBbox:
-                    if odf['concat_viewIndex'][0] is None:
+                    if odf['concat_text'][0] == 'zero':
+                        obs_dict['obj_d_feature'] = np.concatenate(
+                            (odf['concat_feature'],np.zeros(args.angle_feat_size*2)),axis=1)
+                    elif odf['concat_text'][0] == 'average':
                         obs_dict['obj_d_feature'] = np.concatenate(
                             (odf['concat_feature'], np.tile(odf['concat_bbox'],args.angle_feat_size//4),
                              np.expand_dims(self.angle_avg_feature[base_view_id],axis=0)),axis=1)

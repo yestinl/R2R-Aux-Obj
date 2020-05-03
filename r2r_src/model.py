@@ -188,7 +188,7 @@ class AttnDecoderLSTM(nn.Module):
             feature_size = args.feature_size+args.angle_feat_size   # 2176
             if args.catRN:
                 print("Train in denseObj cat RN mode")
-                feature_size = args.feature_size*2+args.angle_feat_size*2 # 4352
+                feature_size = args.feature_size*2+args.angle_feat_size # 4352
                 if args.catAngleBbox:
                     print("Train in denseObj catAngleBbox mode")
                     feature_size = args.feature_size * 2 + args.angle_feat_size * 3  # 4352
