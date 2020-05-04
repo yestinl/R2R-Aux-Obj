@@ -636,4 +636,38 @@ class SpeakerDecoder(nn.Module):
 
         return logit, h1, c1
 
+class SpeakerDecoder_SameLSTM(SpeakerDecoder):
+    def __init__(self, vocab_size, embedding_size, padding_idx, hidden_size, dropout_ratio):
+        super(SpeakerDecoder_SameLSTM, self).__init__(vocab_size, embedding_size, padding_idx, hidden_size, dropout_ratio)
+
+    def forward(self, words, ctx, ctx_mask, x):
+        # embeds = self.embedding(words)
+        # embeds = self.drop(embeds)
+        # x, (h1, c1) = self.lstm(embeds, (h0, c0))
+
+        # x = self.drop(x)
+
+        # Get the size
+        batchXlength = words.size(0) * words.size(1)
+        multiplier = batchXlength // ctx.size(0)         # By using this, it also supports the beam-search
+
+        # Att and Handle with the shape
+        # Reshaping x          <the output> --> (b(word)*l(word), r)
+        # Expand the ctx from  (b, a, r)    --> (b(word)*l(word), a, r)
+        # Expand the ctx_mask  (b, a)       --> (b(word)*l(word), a)
+        x, _ = self.attention_layer(
+            x.contiguous().view(batchXlength, self.hidden_size),
+            ctx.unsqueeze(1).expand(-1, multiplier, -1, -1).contiguous(). view(batchXlength, -1, self.hidden_size),
+            mask=ctx_mask.unsqueeze(1).expand(-1, multiplier, -1).contiguous().view(batchXlength, -1)
+        )
+        x = x.view(words.size(0), words.size(1), self.hidden_size)
+
+        # Output the prediction logit
+        x = self.drop(x)
+        logit = self.projection(x)
+
+        return logit
+
+
+
 
