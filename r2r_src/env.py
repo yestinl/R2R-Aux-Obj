@@ -428,4 +428,293 @@ class R2RBatch():
         stats['path'] = path / len(self.data)
         return stats
 
+class R2RBatch_Multi():
+    ''' Implements the Room to Room navigation task, using discretized viewpoints and pretrained features '''
 
+    def __init__(self, feature_store, obj_d_feat=None, obj_s_feat=None, batch_size=100, seed=10, splits=['train'],
+                 tokenizer=None, name=None):
+        if obj_d_feat or obj_s_feat:
+            self.env = ObjEnvBatch(feature_store=feature_store, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat,
+                                   batch_size=batch_size)
+        else:
+            self.env = EnvBatch(feature_store=feature_store, batch_size=batch_size)
+        if feature_store:
+            self.feature_size = self.env.feature_size
+        self.data = []
+        if tokenizer:
+            self.tok = tokenizer
+        scans = []
+        for split in splits:
+            for item in load_datasets([split]):
+                # Split multiple instructions into separate entries
+                item['instr_encoding'] = []
+                for j,instr in enumerate(item['instructions']):
+                    if item['scan'] not in self.env.featurized_scans:   # For fast training
+                        continue
+                    # new_item = dict(item)
+                    # new_item['instr_id'] = '%s_%d' % (item['path_id'], j)
+                    # new_item['instructions'] = instr
+                    if tokenizer:
+                        item['instr_encoding'].append(tokenizer.encode_sentence(instr))
+                    # if not tokenizer or len(item['instr_encoding'])==3: # Filter the wrong data
+                        # self.data.append(item)
+                scans.append(item['scan'])
+                self.data.append(item)
+        if name is None:
+            self.name = splits[0] if len(splits) > 0 else "FAKE"
+        else:
+            self.name = name
+
+        self.scans = set(scans)
+        self.splits = splits
+        self.seed = seed
+        random.seed(self.seed)
+        random.shuffle(self.data)
+
+        self.ix = 0
+        self.batch_size = batch_size
+        self._load_nav_graphs()
+
+        self.angle_feature = utils.get_all_point_angle_feature()
+        self.angle_avg_feature = utils.get_avg_point_angle_feature()
+        self.sim = utils.new_simulator()
+        self.buffered_state_dict = {}
+
+        # It means that the fake data is equals to data in the supervised setup
+        self.fake_data = self.data
+        print('R2RBatch loaded with %d instructions, using splits: %s' % (len(self.data)*3, ",".join(splits)))
+
+    def size(self):
+        return len(self.data)
+
+    def _load_nav_graphs(self):
+        """
+        load graph from self.scan,
+        Store the graph {scan_id: graph} in self.graphs
+        Store the shortest path {scan_id: {view_id_x: {view_id_y: [path]} } } in self.paths
+        Store the distances in self.distances. (Structure see above)
+        Load connectivity graph for each scan, useful for reasoning about shortest paths
+        :return: None
+        """
+        print('Loading navigation graphs for %d scans' % len(self.scans))
+        self.graphs = load_nav_graphs(self.scans)
+        self.paths = {}
+        for scan, G in self.graphs.items(): # compute all shortest paths
+            self.paths[scan] = dict(nx.all_pairs_dijkstra_path(G))
+        self.distances = {}
+        for scan, G in self.graphs.items(): # compute all shortest paths
+            self.distances[scan] = dict(nx.all_pairs_dijkstra_path_length(G))
+
+    def _next_minibatch(self, tile_one=False, batch_size=None, **kwargs):
+        """
+        Store the minibach in 'self.batch'
+        :param tile_one: Tile the one into batch_size
+        :return: None
+        """
+        if batch_size is None:
+            batch_size = self.batch_size
+        if tile_one:
+            batch = [self.data[self.ix]] * batch_size
+            self.ix += 1
+            if self.ix >= len(self.data):
+                random.shuffle(self.data)
+                self.ix -= len(self.data)
+        else:
+            batch = self.data[self.ix: self.ix+batch_size]
+            if len(batch) < batch_size:
+                random.shuffle(self.data)
+                self.ix = batch_size - len(batch)
+                batch += self.data[:self.ix]
+            else:
+                self.ix += batch_size
+        self.batch = batch
+
+    def reset_epoch(self, shuffle=False):
+        ''' Reset the data index to beginning of epoch. Primarily for testing.
+            You must still call reset() for a new episode. '''
+        if shuffle:
+            random.shuffle(self.data)
+        self.ix = 0
+
+    def _shortest_path_action(self, state, goalViewpointId):
+        ''' Determine next action on the shortest path to goal, for supervised training. '''
+        if state.location.viewpointId == goalViewpointId:
+            return goalViewpointId      # Just stop here
+        path = self.paths[state.scanId][state.location.viewpointId][goalViewpointId]
+        nextViewpointId = path[1]
+        return nextViewpointId
+
+    def make_candidate(self, feature, scanId, viewpointId, viewId, obj_d_feat=None, obj_s_feat=None):
+        def _loc_distance(loc):
+            return np.sqrt(loc.rel_heading ** 2 + loc.rel_elevation ** 2)
+        base_heading = (viewId % 12) * math.radians(30)
+        adj_dict = {}
+        long_id = "%s_%s" % (scanId, viewpointId)
+        if long_id not in self.buffered_state_dict:
+            for ix in range(36):
+                if ix == 0:
+                    self.sim.newEpisode(scanId, viewpointId, 0, math.radians(-30))
+                elif ix % 12 == 0:
+                    self.sim.makeAction(0, 1.0, 1.0)
+                else:
+                    self.sim.makeAction(0, 1.0, 0)
+
+                state = self.sim.getState()
+                assert state.viewIndex == ix
+
+                # Heading and elevation for the viewpoint center
+                heading = state.heading - base_heading
+                elevation = state.elevation
+
+                visual_feat = feature[ix]
+                if obj_d_feat:
+                    odf = obj_d_feat[ix]
+
+                # get adjacent locations
+                for j, loc in enumerate(state.navigableLocations[1:]):
+                    # if a loc is visible from multiple view, use the closest
+                    # view (in angular distance) as its representation
+                    distance = _loc_distance(loc)
+
+                    # Heading and elevation for for the loc
+                    loc_heading = heading + loc.rel_heading
+                    loc_elevation = elevation + loc.rel_elevation
+                    angle_feat = utils.angle_feature(loc_heading, loc_elevation)
+                    if (loc.viewpointId not in adj_dict or
+                            distance < adj_dict[loc.viewpointId]['distance']):
+                        adj_dict[loc.viewpointId] = {
+                            'heading': loc_heading,
+                            'elevation': loc_elevation,
+                            "normalized_heading": state.heading + loc.rel_heading,
+                            'scanId':scanId,
+                            'viewpointId': loc.viewpointId, # Next viewpoint id
+                            'pointId': ix,
+                            'distance': distance,
+                            'idx': j + 1,
+                            'feature': np.concatenate((visual_feat, angle_feat), -1)
+                        }
+                        if obj_d_feat:
+                            adj_dict[loc.viewpointId]['obj_d_feat'] = odf
+            candidate = list(adj_dict.values())
+            self.buffered_state_dict[long_id] = [
+                {key: c[key]
+                 for key in
+                    ['normalized_heading', 'elevation', 'scanId', 'viewpointId',
+                     'pointId', 'idx']}
+                for c in candidate
+            ]
+            return candidate
+        else:
+            candidate = self.buffered_state_dict[long_id]
+            candidate_new = []
+            for c in candidate:
+                c_new = c.copy()
+                ix = c_new['pointId']
+                normalized_heading = c_new['normalized_heading']
+                visual_feat = feature[ix]
+                loc_heading = normalized_heading - base_heading
+                c_new['heading'] = loc_heading
+                angle_feat = utils.angle_feature(c_new['heading'], c_new['elevation'])
+                c_new['feature'] = np.concatenate((visual_feat, angle_feat), -1)
+                if obj_d_feat:
+                    c_new['obj_feat'] = obj_d_feat[ix]
+                c_new.pop('normalized_heading')
+                candidate_new.append(c_new)
+            return candidate_new
+
+    def _get_obs(self):
+        obs = []
+        # for i, (feature, state) in enumerate(self.env.getStates()):
+        if args.sparseObj or args.denseObj:
+            F, obj_d_feat, obj_s_feat = self.env.getStates()
+        else:
+            F = self.env.getStates()
+        for i in range(len(F)):
+            feature = F[i][0]
+            state = F[i][1]
+            # odf = obj_d_feat[i]
+            if args.sparseObj:
+                osf = obj_s_feat[i]
+            if args.denseObj:
+                odf = obj_d_feat[i]
+            item = self.batch[i]
+            base_view_id = state.viewIndex
+
+            # Full features
+            candidate = self.make_candidate(feature, state.scanId, state.location.viewpointId, state.viewIndex)
+
+            # (visual_feature, angel_feature) for views
+            feature = np.concatenate((feature, self.angle_feature[base_view_id]), -1)
+            obs_dict = {
+                # 'instr_id' : item['path_id'],
+                'scan' : state.scanId,
+                'viewpoint' : state.location.viewpointId,
+                'viewIndex' : state.viewIndex,
+                'heading' : state.heading,
+                'elevation' : state.elevation,
+                'feature' : feature,
+                'candidate': candidate,
+                'navigableLocations' : state.navigableLocations,
+                'instructions' : item['instructions'],
+                'teacher' : self._shortest_path_action(state, item['path'][-1]),
+                'path_id' : item['path_id']
+            }
+            if args.sparseObj:
+                obs_dict['obj_s_feature'] = osf['concat_feature']
+                obs_dict['bbox_angle_h'] = osf['concat_angles_h']
+                obs_dict['bbox_angle_e'] = osf['concat_angles_e']
+            if args.denseObj:
+                if args.catAngleBbox:
+                    if odf['concat_text'][0] == 'zero':
+                        obs_dict['obj_d_feature'] = np.concatenate(
+                            (odf['concat_feature'],np.zeros((1,args.angle_feat_size*2))),axis=1)
+                    elif odf['concat_text'][0] == 'average':
+                        obs_dict['obj_d_feature'] = np.concatenate(
+                            (odf['concat_feature'], np.tile(odf['concat_bbox'],args.angle_feat_size//4),
+                             np.expand_dims(self.angle_avg_feature[base_view_id],axis=0)),axis=1)
+                    else:
+                        obs_dict['obj_d_feature'] = np.zeros((len(odf['concat_feature']),args.angle_feat_size*2+args.feature_size))
+                        for k,v in enumerate(odf['concat_viewIndex']):
+                            obs_dict['obj_d_feature'][k] = np.concatenate(
+                                (odf['concat_feature'][k], np.tile(odf['concat_bbox'][k],args.angle_feat_size//4),
+                                 self.angle_feature[base_view_id][v]))
+                else:
+                    obs_dict['obj_d_feature'] = odf['concat_feature']
+            obs.append(obs_dict)
+            if 'instr_encoding' in item:
+                obs[-1]['instr_encoding'] = item['instr_encoding']
+            # A2C reward. The negative distance between the state and the final state
+            obs[-1]['distance'] = self.distances[state.scanId][state.location.viewpointId][item['path'][-1]]
+        return obs
+
+    def reset(self, batch=None, inject=False, **kwargs):
+        ''' Load a new minibatch / episodes. '''
+        if batch is None:       # Allow the user to explicitly define the batch
+            self._next_minibatch(**kwargs)
+        else:
+            if inject:          # Inject the batch into the next minibatch
+                self._next_minibatch(**kwargs)
+                self.batch[:len(batch)] = batch
+            else:               # Else set the batch to the current batch
+                self.batch = batch
+        scanIds = [item['scan'] for item in self.batch]
+        viewpointIds = [item['path'][0] for item in self.batch]
+        headings = [item['heading'] for item in self.batch]
+        self.env.newEpisodes(scanIds, viewpointIds, headings)
+        return self._get_obs()
+
+    def step(self, actions):
+        ''' Take action (same interface as makeActions) '''
+        self.env.makeActions(actions)
+        return self._get_obs()
+
+    def get_statistics(self):
+        stats = {}
+        length = 0
+        path = 0
+        for datum in self.data:
+            length += len(self.tok.split_sentence(datum['instructions']))
+            path += self.distances[datum['scan']][datum['path'][0]][datum['path'][-1]]
+        stats['length'] = length / len(self.data)
+        stats['path'] = path / len(self.data)
+        return stats

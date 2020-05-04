@@ -21,7 +21,7 @@ from speaker import Speaker
 
 
 import utils
-from env import R2RBatch
+from env import R2RBatch, R2RBatch_Multi
 from agent import Seq2SeqAgent
 from eval import Evaluation
 
@@ -473,8 +473,12 @@ def train_val():
     featurized_scans = set([key.split("_")[0] for key in list(feat_dict.keys())])
 
     # train_env = R2RBatch(feat_dict, batch_size=args.batchSize, splits=['train'], tokenizer=tok)
-    train_env = R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize,
+    if args.multi:
+        train_env = R2RBatch_Multi(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize,
                          splits=['train'], tokenizer=tok)
+    else:
+        train_env = R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize,
+                             splits=['train'], tokenizer=tok)
     from collections import OrderedDict
 
     val_env_names = ['val_unseen', 'val_seen']
@@ -487,15 +491,26 @@ def train_val():
     if not args.beam:
         val_env_names.append("train")
 
-    val_envs = OrderedDict(
+    if args.multi:
+        val_envs = OrderedDict(
         ((split,
-          (R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
+          (R2RBatch_Multi(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
                     tokenizer=tok),
            Evaluation([split], featurized_scans, tok))
           )
          for split in val_env_names
          )
     )
+    else:
+        val_envs = OrderedDict(
+            ((split,
+              (R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
+                        tokenizer=tok),
+               Evaluation([split], featurized_scans, tok))
+              )
+             for split in val_env_names
+             )
+        )
 
     # val_envs = OrderedDict(
     #     ((split,

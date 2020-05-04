@@ -168,21 +168,36 @@ class Seq2SeqAgent(BaseAgent):
         ''' Extract instructions from a list of observations and sort by descending
             sequence length (to enable PyTorch packing). '''
 
-        seq_tensor = np.array([ob['instr_encoding'] for ob in obs])
-        seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
-        seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
+        if args.multi:
+            for i in range(3):
+                seq_tensor = np.array([ob['instr_encoding'][i] for ob in obs])
+                seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
+                seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]  # Full length
 
-        seq_tensor = torch.from_numpy(seq_tensor)
-        seq_lengths = torch.from_numpy(seq_lengths)
+                seq_tensor = torch.from_numpy(seq_tensor)
+                seq_lengths = torch.from_numpy(seq_lengths)
 
-        # Sort sequences by lengths
-        seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
-        sorted_tensor = seq_tensor[perm_idx]
-        mask = (sorted_tensor == padding_idx)[:,:seq_lengths[0]]    # seq_lengths[0] is the Maximum length
+                # Sort sequences by lengths
+                seq_lengths, perm_idx = seq_lengths.sort(0, True)  # True -> descending
+                sorted_tensor = seq_tensor[perm_idx]
+                mask = (sorted_tensor == padding_idx)[:, :seq_lengths[0]]
 
-        return Variable(sorted_tensor, requires_grad=False).long().cuda(), \
-               mask.byte().cuda(),  \
-               list(seq_lengths), list(perm_idx)
+        else:
+            seq_tensor = np.array([ob['instr_encoding'] for ob in obs])
+            seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
+            seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]     # Full length
+
+            seq_tensor = torch.from_numpy(seq_tensor)
+            seq_lengths = torch.from_numpy(seq_lengths)
+
+            # Sort sequences by lengths
+            seq_lengths, perm_idx = seq_lengths.sort(0, True)       # True -> descending
+            sorted_tensor = seq_tensor[perm_idx]
+            mask = (sorted_tensor == padding_idx)[:,:seq_lengths[0]]    # seq_lengths[0] is the Maximum length
+
+            return Variable(sorted_tensor, requires_grad=False).long().cuda(), \
+                   mask.byte().cuda(),  \
+                   list(seq_lengths), list(perm_idx)
 
     def _feature_variable(self, obs):
         ''' Extract precomputed features into variable. '''

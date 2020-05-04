@@ -103,6 +103,9 @@ class Param:
         self.parser.add_argument("--objInputMode", type=str, default="gate")  # gate,attn
         self.parser.add_argument("--catAngleBbox", dest='catAngleBbox', action='store_const', default=False, const=True)
 
+        # Multi_view
+        self.parser.add_argument("--multi", dest='multi', action='store_const', default=False, const=True)
+
         # visualize
         self.parser.add_argument("--analizePath", dest='analizePath', action='store_const', default=False, const=True)
 
