@@ -765,12 +765,19 @@ def get_sync_dir(file):
 
     return data_dir
 
-def gt_words(obs):
+def gt_words(obs, multi=False):
     """
     See "utils.Tokenizer.encode_sentence(...)" for "instr_encoding" details
     """
-    seq_tensor = np.array([ob['instr_encoding'] for ob in obs])
-    return torch.from_numpy(seq_tensor).cuda()
+    if multi:
+        seq_tensor = []
+        for i in range(args.multiNum):
+            seq_tensor_i = np.array([ob['instr_encoding'][i] for ob in obs])
+            seq_tensor.append(torch.from_numpy(seq_tensor_i).cuda())
+        return seq_tensor
+    else:
+        seq_tensor = np.array([ob['instr_encoding'] for ob in obs])
+        return torch.from_numpy(seq_tensor).cuda()
 
 def progress_generator(mask):
     mask = ~mask # [True, True, False]

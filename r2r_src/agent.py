@@ -164,12 +164,17 @@ class Seq2SeqAgent(BaseAgent):
         self.logs = defaultdict(list)
 
 
-    def _sort_batch(self, obs):
+    def _sort_batch(self, obs, multi=False):
         ''' Extract instructions from a list of observations and sort by descending
             sequence length (to enable PyTorch packing). '''
 
-        if args.multi:
-            for i in range(3):
+        if multi:
+            seq = []
+            seq_mask = []
+            seq_len = []
+            perm_idx_L = []
+            reverse_idx_L = []
+            for i in range(args.multiNum):
                 seq_tensor = np.array([ob['instr_encoding'][i] for ob in obs])
                 seq_lengths = np.argmax(seq_tensor == padding_idx, axis=1)
                 seq_lengths[seq_lengths == 0] = seq_tensor.shape[1]  # Full length
@@ -177,10 +182,19 @@ class Seq2SeqAgent(BaseAgent):
                 seq_tensor = torch.from_numpy(seq_tensor)
                 seq_lengths = torch.from_numpy(seq_lengths)
 
+
                 # Sort sequences by lengths
-                seq_lengths, perm_idx = seq_lengths.sort(0, True)  # True -> descending
-                sorted_tensor = seq_tensor[perm_idx]
-                mask = (sorted_tensor == padding_idx)[:, :seq_lengths[0]]
+                seq_lengths, perm_idx = seq_lengths.sort(0, True)
+                mask = (seq_tensor == padding_idx)[:, :seq_lengths[0]]# True -> descending
+                reverse_idx = torch.zeros(perm_idx.shape[0])
+                for i,x in enumerate(perm_idx):
+                    reverse_idx[x] = i
+                perm_idx_L.append(list(perm_idx))
+                reverse_idx_L.append(list(reverse_idx.int()))
+                seq.append(Variable(seq_tensor, requires_grad=False).long().cuda())
+                seq_mask.append(mask.byte().cuda())
+                seq_len.append(list(seq_lengths))
+            return seq, seq_mask, seq_len, perm_idx_L, reverse_idx_L
 
         else:
             seq_tensor = np.array([ob['instr_encoding'] for ob in obs])
@@ -347,7 +361,7 @@ class Seq2SeqAgent(BaseAgent):
                     a[i] = len(ob['candidate'])
         return torch.from_numpy(a).cuda()
 
-    def make_equiv_action(self, a_t, perm_obs, perm_idx=None, traj=None):
+    def make_equiv_action(self, a_t, perm_obs, perm_idx=None, traj=None, multi=False):
         """
         Interface between Panoramic view and Egocentric view 
         It will convert the action panoramic view action a_t to equivalent egocentric view actions for the simulator
@@ -363,6 +377,8 @@ class Seq2SeqAgent(BaseAgent):
                     traj[i]['path'].append((state.location.viewpointId, state.heading, state.elevation, state.viewIndex))
                 else:
                     traj[i]['path'].append((state.location.viewpointId, state.heading, state.elevation))
+        if multi:
+            perm_idx = None
         if perm_idx is None:
             perm_idx = range(len(perm_obs))
         for i, idx in enumerate(perm_idx):
@@ -385,7 +401,7 @@ class Seq2SeqAgent(BaseAgent):
                        self.env.env.sims[idx].getState().navigableLocations[select_candidate['idx']].viewpointId
                 take_action(i, idx, select_candidate['idx'])
 
-    def rollout(self, train_ml=None, train_rl=True, reset=True, speaker=None, test=False):
+    def rollout(self, train_ml=None, train_rl=True, reset=True, speaker=None, test=False, multi = False):
         """
         :param train_ml:    The weight to train with maximum likelihood
         :param train_rl:    whether use RL in training
@@ -425,11 +441,25 @@ class Seq2SeqAgent(BaseAgent):
             obs = np.array(self.env.reset(batch))
 
         # Reorder the language input for the encoder (do not ruin the original code)
-        seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs)
-        perm_obs = obs[perm_idx]
-
-        ctx, h_t, c_t = self.encoder(seq, seq_lengths)
-        ctx_mask = seq_mask
+        if multi:
+            seq, seq_mask, seq_lengths, perm_idx, reverse_idx = self._sort_batch(obs, multi=True)
+            ctx = []
+            h_t = torch.zeros((batch_size,args.rnn_dim)).cuda()
+            c_t = torch.zeros((batch_size,args.rnn_dim)).cuda()
+            for i in range(args.multiNum):
+                ctx_i, h_t_i, c_t_i = self.encoder(seq[i][perm_idx[i]], seq_lengths[i])
+                ctx.append(ctx_i[reverse_idx[i]])
+                h_t += h_t_i
+                c_t += c_t_i
+            h_t = h_t/args.multiNum
+            c_t = c_t/args.multiNum
+            ctx_mask = seq_mask
+            perm_obs = obs
+        else:
+            seq, seq_mask, seq_lengths, perm_idx = self._sort_batch(obs)
+            perm_obs = obs[perm_idx]
+            ctx, h_t, c_t = self.encoder(seq, seq_lengths)
+            ctx_mask = seq_mask
 
         # Init the reward shaping
         last_dist = np.zeros(batch_size, np.float32)
@@ -443,10 +473,16 @@ class Seq2SeqAgent(BaseAgent):
                 'path': [(ob['viewpoint'], ob['heading'], ob['elevation'], ob['viewIndex'])]
             } for ob in perm_obs]
         else:
-            traj = [{
-                'instr_id': ob['instr_id'],
-                'path': [(ob['viewpoint'], ob['heading'], ob['elevation'])]
-            } for ob in perm_obs]
+            if multi:
+                traj = [{
+                    'path_id': ob['path_id'],
+                    'path': [(ob['viewpoint'], ob['heading'], ob['elevation'])]
+                } for ob in perm_obs]
+            else:
+                traj = [{
+                    'instr_id': ob['instr_id'],
+                    'path': [(ob['viewpoint'], ob['heading'], ob['elevation'])]
+                } for ob in perm_obs]
 
         # For test result submission
         visited = [set() for _ in perm_obs]
@@ -518,10 +554,11 @@ class Seq2SeqAgent(BaseAgent):
                 hidden_states.append(h_t_v)
             else:
                 h_t, c_t, logit, h1 = self.decoder(input_a_t,candidate_feat,
-                                                   h_t, h1, c_t,
+                                                   h1, c_t,
                                                    ctx, ctx_mask,feature=f_t,
                                                    sparseObj=sparseObj,denseObj=denseObj,
-                                                   ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None))
+                                                   ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None),
+                                                   multi=multi)
                 v_ctx.append(h_t)
                 hidden_states.append(h_t)
             vl_ctx.append(h1)
@@ -584,9 +621,15 @@ class Seq2SeqAgent(BaseAgent):
                     cpu_a_t[i] = -1             # Change the <end> and ignore action to -1
 
             # Make action and get the new state
-            self.make_equiv_action(cpu_a_t, perm_obs, perm_idx, traj)
+            if multi:
+                self.make_equiv_action(cpu_a_t, perm_obs, perm_idx, traj, multi=True)
+            else:
+                self.make_equiv_action(cpu_a_t, perm_obs, perm_idx, traj)
             obs = np.array(self.env._get_obs())
-            perm_obs = obs[perm_idx]                    # Perm the obs for the resu
+            if multi:
+                perm_obs = obs
+            else:
+                perm_obs = obs[perm_idx]                    # Perm the obs for the resu
 
             # Calculate the mask and reward
             dist = np.zeros(batch_size, np.float32)
@@ -669,10 +712,10 @@ class Seq2SeqAgent(BaseAgent):
                 )
             else:
                 last_h_, _, _, _ = self.decoder(input_a_t,candidate_feat,
-                                               h_t, h1, c_t,
+                                               h1, c_t,
                                                ctx, ctx_mask,feature=f_t,
                                                sparseObj=sparseObj,denseObj=denseObj,
-                                               ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None))
+                                               ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None),multi=multi)
             rl_loss = 0.
 
             # NOW, A2C!!!
@@ -722,9 +765,14 @@ class Seq2SeqAgent(BaseAgent):
         # auxiliary tasks
         h_t = h_t.unsqueeze(0)
         c_t = c_t.unsqueeze(0)
-        insts = utils.gt_words(perm_obs)
-        l = ctx.size(1)
-        insts = insts[:, :l]
+        if multi:
+            insts = utils.gt_words(perm_obs,multi=True)
+        else:
+            insts = utils.gt_words(perm_obs)
+
+        if args.modspe:
+            l = ctx.size(1)
+            insts = insts[:, :l]
         v_ctx = torch.stack(v_ctx, dim=1)
         vl_ctx = torch.stack(vl_ctx, dim=1)
         decode_mask = [torch.tensor(mask) for mask in masks]
@@ -735,19 +783,29 @@ class Seq2SeqAgent(BaseAgent):
             if args.modspe:
                 logits = self.speaker_decoder(insts, v_ctx, decode_mask, ctx.detach())
             else:
-                logits, _, _ = self.speaker_decoder(insts, v_ctx, decode_mask, h_t, c_t)
-            # Because the softmax_loss only allow dim-1 to be logit,
-            # So permute the output (batch_size, length, logit) --> (batch_size, logit, length)
-            logits = logits.permute(0, 2, 1).contiguous()
-            # correct_num = torch.sum((insts[:, 1:] == torch.argmax(logits[:, :, :-1], dim=1)))\
-            #     .cpu().numpy()
-            # all_num = insts.size(0)*(insts.size(1)-1)
-            # self.acc+=correct_num/all_num
-            # self.acc_num+=1
-            spe_loss = self.softmax_loss(
-                input=logits[:, :, :-1],  # -1 for aligning
-                target=insts[:, 1:]  # "1:" to ignore the word <BOS>
-            )
+                if multi:
+                    logits = []
+                    for i in range(args.multiNum):
+                        logits_i , _, _ = self.speaker_decoder(insts[i], v_ctx, decode_mask, h_t, c_t)
+                        logits.append(logits_i.permute(0,2,1).contiguous())
+                else:
+                    logits, _, _ = self.speaker_decoder(insts, v_ctx, decode_mask, h_t, c_t)
+                    # Because the softmax_loss only allow dim-1 to be logit,
+                    # So permute the output (batch_size, length, logit) --> (batch_size, logit, length)
+                    logits = logits.permute(0, 2, 1).contiguous()
+            if multi:
+                spe_loss = 0
+                for i in range(args.multiNum):
+                    spe_loss += self.softmax_loss(
+                        input=logits[i][:,:,:-1],
+                        target=insts[i][:,1:]
+                    )
+                spe_loss /= args.multiNum
+            else:
+                spe_loss = self.softmax_loss(
+                    input=logits[:, :, :-1],  # -1 for aligning
+                    target=insts[:, 1:]  # "1:" to ignore the word <BOS>
+                )
             spe_loss = spe_loss * args.speWeight
             self.loss += spe_loss
             self.logs['spe_loss'].append(spe_loss.detach())
@@ -778,13 +836,17 @@ class Seq2SeqAgent(BaseAgent):
             same_idx = rand_idx == order_idx
             label = (matching_mask | same_idx).float().unsqueeze(1).cuda()  # 1 same, 0 different
             new_h1 = label * h1 + (1 - label) * h1[rand_idx, :]
-
             if args.modmat:
                 mat_att, _ = self.matching_attention(h1, ctx, output_tilde=False)
                 vl_pair = torch.cat((new_h1, mat_att), dim=1)
                 # vl_pair = torch.cat((new_h1, h_0), dim=1)
             else:
-                mean_ctx = torch.mean(ctx.detach(), dim=1)
+                if multi:
+                    mean_ctx = torch.zeros_like(new_h1).cuda()
+                    for i in range(args.multiNum):
+                        mean_ctx += torch.mean(ctx[i].detach(), dim=1)
+                else:
+                    mean_ctx = torch.mean(ctx.detach(), dim=1)
                 vl_pair = torch.cat((new_h1, mean_ctx), dim=1)
             prob = self.matching_network(vl_pair)
             # print(prob)
@@ -1173,9 +1235,9 @@ class Seq2SeqAgent(BaseAgent):
             elif feedback == 'sample':
                 if args.ml_weight != 0:
                     self.feedback = 'teacher'
-                    self.rollout(train_ml=args.ml_weight, train_rl=False, **kwargs)
+                    self.rollout(train_ml=args.ml_weight, train_rl=False, multi = args.multi, **kwargs)
                 self.feedback = 'sample'
-                self.rollout(train_ml=None, train_rl=True, **kwargs)
+                self.rollout(train_ml=None, train_rl=True, multi= args.multi, **kwargs )
             else:
                 assert False
 

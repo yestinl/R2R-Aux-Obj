@@ -105,6 +105,7 @@ class Param:
 
         # Multi_view
         self.parser.add_argument("--multi", dest='multi', action='store_const', default=False, const=True)
+        self.parser.add_argument("--multiNum", dest="multiNum", type=int, default=3)
 
         # visualize
         self.parser.add_argument("--analizePath", dest='analizePath', action='store_const', default=False, const=True)

@@ -50,7 +50,7 @@ if args.upload:
     sparse_obj_feat = get_sync_dir(os.path.join(args.upload_path, args.SPARSE_OBJ_FEATURES))
     dense_obj_feat1 = get_sync_dir(os.path.join(args.upload_path, args.DENSE_OBJ_FEATURES1))
     dense_obj_feat2 = get_sync_dir(os.path.join(args.upload_path, args.DENSE_OBJ_FEATURES2))
-    bbox = get_sync_dir(os.path.join(args.upload_path, args.BBOX_FEATURES))
+    # bbox = get_sync_dir(os.path.join(args.upload_path, args.BBOX_FEATURES))
 
 else:
     train_vocab = os.path.join(args.R2R_Aux_path,args.TRAIN_VOCAB)
@@ -464,7 +464,7 @@ def train_val():
     # load object feature
     obj_s_feat = None
     if args.sparseObj:
-        obj_s_feat = utils.read_obj_sparse_features(sparse_obj_feat, bbox, args.objthr)
+        obj_s_feat = utils.read_obj_sparse_features(sparse_obj_feat, args.objthr)
 
     obj_d_feat = None
     if args.denseObj:
@@ -491,26 +491,26 @@ def train_val():
     if not args.beam:
         val_env_names.append("train")
 
-    if args.multi:
-        val_envs = OrderedDict(
+    # if args.multi:
+    #     val_envs = OrderedDict(
+    #     ((split,
+    #       (R2RBatch_Multi(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
+    #                 tokenizer=tok),
+    #        Evaluation([split], featurized_scans, tok))
+    #       )
+    #      for split in val_env_names
+    #      )
+    # )
+    # else:
+    val_envs = OrderedDict(
         ((split,
-          (R2RBatch_Multi(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
+          (R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
                     tokenizer=tok),
            Evaluation([split], featurized_scans, tok))
           )
          for split in val_env_names
          )
     )
-    else:
-        val_envs = OrderedDict(
-            ((split,
-              (R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
-                        tokenizer=tok),
-               Evaluation([split], featurized_scans, tok))
-              )
-             for split in val_env_names
-             )
-        )
 
     # val_envs = OrderedDict(
     #     ((split,

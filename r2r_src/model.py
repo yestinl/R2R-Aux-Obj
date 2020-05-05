@@ -239,15 +239,14 @@ class AttnDecoderLSTM(nn.Module):
         self.candidate_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
 
     def forward(self, action, cand_feat,
-                h_0, prev_h1, c_0,
+                prev_h1, c_0,
                 ctx, ctx_mask=None,feature=None, sparseObj=None,denseObj=None,ObjFeature_mask=None,
-                already_dropfeat=False):
+                already_dropfeat=False,multi=False):
         '''
         Takes a single step in the decoder LSTM (allowing sampling).
         action: batch x angle_feat_size
         feature: batch x 36 x (feature_size + angle_feat_size)
         cand_feat: batch x cand x (feature_size + angle_feat_size)
-        h_0: batch x hidden_size
         prev_h1: batch x hidden_size
         c_0: batch x hidden_size
         ctx: batch x seq_len x dim
@@ -313,7 +312,15 @@ class AttnDecoderLSTM(nn.Module):
         h_1, c_1 = self.lstm(concat_input, (prev_h1, c_0))
 
         h_1_drop = self.drop(h_1)
-        h_tilde, alpha = self.attention_layer(h_1_drop, ctx, ctx_mask)
+
+        if multi:
+            h_tilde = torch.zeros_like(h_1_drop).cuda()
+            for i in range(args.multiNum):
+                h_tilde_i, _ = self.attention_layer(h_1_drop, ctx[i], ctx_mask[i])
+                h_tilde += h_tilde_i
+            h_tilde /= args.multiNum
+        else:
+            h_tilde, _ = self.attention_layer(h_1_drop, ctx, ctx_mask)
 
         # Adding Dropout
         h_tilde_drop = self.drop(h_tilde)
