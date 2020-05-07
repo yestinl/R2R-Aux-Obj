@@ -14,4 +14,4 @@ environment:
         experiments: [10993]
 
 run:
-    cmd: python3.6 r2r_src/train.py --train listener --submit --speWeight 1 --proWeight 1 --angWeight 2 --feaWeight 1 --matWeight 1 --multi --upload --name baseline_leo_0
+    cmd: python3.6 r2r_src/train.py --train listener --submit --speWeight 1 --angWeight 2 --feaWeight 1 --multi --upload --name baseline_leo_2

@@ -449,8 +449,8 @@ class Seq2SeqAgent(BaseAgent):
             for i in range(args.multiNum):
                 ctx_i, h_t_i, c_t_i = self.encoder(seq[i][perm_idx[i]], seq_lengths[i])
                 ctx.append(ctx_i[reverse_idx[i]])
-                h_t += h_t_i
-                c_t += c_t_i
+                h_t += h_t_i[reverse_idx[i]]
+                c_t += c_t_i[reverse_idx[i]]
             h_t = h_t/args.multiNum
             c_t = c_t/args.multiNum
             ctx_mask = seq_mask
@@ -782,6 +782,7 @@ class Seq2SeqAgent(BaseAgent):
         if abs(args.speWeight - 0) > eps:
             if args.modspe:
                 logits = self.speaker_decoder(insts, v_ctx, decode_mask, ctx.detach())
+                logits = logits.permute(0, 2, 1).contiguous()
             else:
                 if multi:
                     logits = []
@@ -789,10 +790,12 @@ class Seq2SeqAgent(BaseAgent):
                         logits_i , _, _ = self.speaker_decoder(insts[i], v_ctx, decode_mask, h_t, c_t)
                         logits.append(logits_i.permute(0,2,1).contiguous())
                 else:
-                    logits, _, _ = self.speaker_decoder(insts, v_ctx, decode_mask, h_t, c_t)
+                    logits, _, _ = self.speaker_decoder(insts, v_ctx, decode_mask, h_t, c_t, ctx_w=ctx)
+                    _logits = torch.zeros(logits.size(0), insts.size(1), logits.size(2)).cuda()
+                    _logits[:, :logits.size(1), :logits.size(2)] = logits
                     # Because the softmax_loss only allow dim-1 to be logit,
                     # So permute the output (batch_size, length, logit) --> (batch_size, logit, length)
-                    logits = logits.permute(0, 2, 1).contiguous()
+                    logits = _logits.permute(0, 2, 1).contiguous()
             if multi:
                 spe_loss = 0
                 for i in range(args.multiNum):
@@ -820,6 +823,7 @@ class Seq2SeqAgent(BaseAgent):
             pro_loss = pro_loss * args.proWeight
             self.loss += pro_loss
             self.logs['pro_loss'].append(pro_loss.detach())
+
         else:
             self.logs['pro_loss'].append(0)
 
