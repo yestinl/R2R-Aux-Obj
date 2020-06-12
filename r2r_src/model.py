@@ -125,6 +125,71 @@ class SoftDotAttention(nn.Module):
         else:
             return weighted_context, attn
 
+class MultiHeadSelfAttention(nn.Module):
+    '''Soft Dot Attention.
+
+    Ref: http://www.aclweb.org/anthology/D15-1166
+    Adapted from PyTorch OPEN NMT.
+    '''
+
+    def __init__(self,num_heads, query_dim, ctx_dim):
+        '''Initialize layer.'''
+        super(MultiHeadSelfAttention, self).__init__()
+        self.num_heads = num_heads
+        self.linear_in = nn.Linear(query_dim, ctx_dim, bias=False)
+        self.sm = nn.Softmax()
+        self.linear_concat_out = nn.Linear(self.num_heads*query_dim + ctx_dim, query_dim, bias=False)
+        self.linear_out = nn.Linear(self.num_heads*ctx_dim, ctx_dim,bias=False)
+        self.tanh = nn.Tanh()
+
+    def forward(self, h, context, mask=None,
+                output_tilde=True, output_prob=True):
+        '''Propagate h through the network.
+
+        h: batch x dim
+        context: batch x seq_len x dim
+        mask: batch x seq_len indices to be masked
+        '''
+        append_logit = []
+        append_weighted_context = []
+        append_attn = []
+
+        for i in range(self.num_heads):
+
+            target = self.linear_in(h).unsqueeze(2)  # batch x dim x 1
+
+            # Get attention
+            attn = torch.bmm(context, target).squeeze(2)  # batch x seq_len
+            logit = attn
+
+            if mask is not None:
+                # -Inf masking prior to the softmax
+                attn.masked_fill_(mask.bool(), -float('inf'))
+            attn = self.sm(attn)    # There will be a bug here, but it's actually a problem in torch source code.
+            attn3 = attn.view(attn.size(0), 1, attn.size(1))  # batch x 1 x seq_len
+
+            weighted_context = torch.bmm(attn3, context).squeeze(1)  # batch x dim
+            append_logit.append(logit)                        # num_head x batch x seq_len
+            append_weighted_context.append(weighted_context)
+            append_attn.append(attn)
+
+        output_logit = torch.stack(append_logit)
+        output_weighted_context = torch.stack(append_weighted_context).view(h.size(0), -1)
+        output_attn = torch.stack(append_attn)
+
+        output_logit = output_logit.mean(dim=0)
+        output_attn = output_attn.mean(dim=0)
+
+        if not output_prob:
+            output_attn = output_logit
+        if output_tilde:
+            h_tilde = torch.cat((weighted_context, h), 1)
+            h_tilde = self.tanh(self.linear_concat_out(h_tilde))
+            return h_tilde, output_attn
+        else:
+            output_weighted_context = self.linear_out(output_weighted_context)
+            return output_weighted_context, output_attn
+
 class Gate(nn.Module):
     '''Soft Dot Attention.
 
@@ -225,7 +290,8 @@ class AttnDecoderLSTM(nn.Module):
         self.drop = nn.Dropout(p=dropout_ratio)
         self.drop_env = nn.Dropout(p=args.featdropout)
         self.lstm = nn.LSTMCell(embedding_size+feature_size, hidden_size)
-        self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
+        # self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
+        self.feat_att_layer = MultiHeadSelfAttention(3, hidden_size, args.feature_size + args.angle_feat_size)
         if args.denseObj:
             print("Train in %s mode."%args.objInputMode)
             if (args.objInputMode == 'sg') or (args.objInputMode == 'tanh'):
@@ -545,7 +611,6 @@ class ProgressIndicator(nn.Module):
         h = self.relu1(self.fc1(h))
         h = self.sigmoid(self.fc2(h))
         return h
-
 
 class Critic(nn.Module):
     def __init__(self):

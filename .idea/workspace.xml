@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c9fad949-7e44-4d72-a043-557aea80f43a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/r2r_src/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2r_src/agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/r2r_src/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2r_src/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2r_src/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2r_src/train.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,13 +11,40 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DockManager">
+    <window id="1">
+      <content type="file-editors">
+        <state>
+          <leaf>
+            <file pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/r2r_src/model.py">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="-1778">
+                    <caret line="152" selection-start-line="152" selection-end-line="152" />
+                    <folding>
+                      <element signature="e#236#3272#0" />
+                      <element signature="e#3314#4909#0" />
+                      <element signature="e#3485#3765#0" />
+                      <element signature="e#7217#8918#0" />
+                      <element signature="e#14229#15092#0" />
+                      <element signature="e#17183#17426#0" />
+                    </folding>
+                  </state>
+                </provider>
+              </entry>
+            </file>
+          </leaf>
+        </state>
+      </content>
+    </window>
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/r2r_src/agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="46">
-              <caret line="101" column="8" selection-start-line="101" selection-start-column="8" selection-end-line="103" selection-end-column="13" />
+            <state relative-caret-position="136">
+              <caret line="565" selection-start-line="565" selection-end-line="565" />
               <folding>
                 <element signature="e#1#12#0" expanded="true" />
                 <element signature="e#438#2335#0" />
@@ -36,22 +62,19 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/r2r_src/bleu.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1468" />
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/r2r_src/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="23">
-              <caret line="182" column="8" selection-start-line="182" selection-start-column="8" selection-end-line="215" selection-end-column="12" />
+            <state relative-caret-position="1033">
+              <caret line="392" selection-start-line="392" selection-end-line="392" />
               <folding>
                 <element signature="e#236#3272#0" />
-                <element signature="e#3314#4909#0" />
+                <element signature="e#3485#3765#0" />
                 <element signature="e#4938#6639#0" />
+                <element signature="e#6974#7268#0" />
+                <element signature="e#7334#8221#0" />
+                <element signature="e#8283#8640#0" />
+                <element signature="e#8667#8765#0" />
                 <element signature="e#15619#23409#0" />
                 <element signature="e#23450#23907#0" />
                 <element signature="e#23948#24307#0" />
@@ -67,25 +90,42 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/polyaxonfile.yml">
+        <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/rnn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="161">
-              <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+            <state relative-caret-position="153">
+              <caret line="119" selection-start-line="119" selection-end-line="119" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/r2r_src/speaker.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="115">
+              <caret line="5" selection-start-line="5" selection-end-line="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/r2r_src/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="184">
-              <caret line="486" lean-forward="true" selection-start-line="486" selection-end-line="486" />
+            <state relative-caret-position="166">
+              <caret line="135" column="16" selection-start-line="135" selection-start-column="16" selection-end-line="135" selection-end-column="16" />
               <folding>
                 <element signature="e#0#22#0" expanded="true" />
-                <element signature="e#5211#12682#0" />
                 <element signature="e#12728#14747#0" />
                 <element signature="e#14799#19573#0" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/module.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="342">
+              <caret line="546" selection-start-line="546" selection-end-line="546" />
             </state>
           </provider>
         </entry>
@@ -94,13 +134,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>3</find>
-      <find>rnn_dim</find>
-      <find>seq_lengths</find>
-      <find>make_equ</find>
-      <find>args.multi</find>
-      <find>panorama_objs_bbox_0_5.npy</find>
-      <find>args.mod</find>
       <find>accur</find>
       <find>h_0</find>
       <find>ctx.det</find>
@@ -124,6 +157,13 @@
       <find>multi</find>
       <find>obj</find>
       <find>decoder</find>
+      <find>output_prob=False</find>
+      <find>output_tilde=True</find>
+      <find>average</find>
+      <find>mean</find>
+      <find>output_tilde</find>
+      <find>vl_ctx</find>
+      <find>head</find>
     </findStrings>
     <replaceStrings>
       <replace>candidate_feat</replace>
@@ -149,17 +189,17 @@
         <option value="$PROJECT_DIR$/r2r_src/env.py" />
         <option value="$PROJECT_DIR$/r2r_src/param.py" />
         <option value="$PROJECT_DIR$/polyaxonfile.yml" />
+        <option value="$PROJECT_DIR$/r2r_src/train.py" />
         <option value="$PROJECT_DIR$/r2r_src/agent.py" />
         <option value="$PROJECT_DIR$/r2r_src/model.py" />
-        <option value="$PROJECT_DIR$/r2r_src/train.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-9" />
-    <option name="y" value="-9" />
-    <option name="width" value="1938" />
-    <option name="height" value="1048" />
+    <option name="x" value="60" />
+    <option name="y" value="-930" />
+    <option name="width" value="1551" />
+    <option name="height" value="839" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -175,6 +215,11 @@
               <item name="R2R-Env-Aux" type="b2602c69:ProjectViewProjectNode" />
               <item name="R2R-Env-Aux" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="R2R-Env-Aux" type="b2602c69:ProjectViewProjectNode" />
+              <item name="R2R-Env-Aux" type="462c0819:PsiDirectoryNode" />
+              <item name="r2r_src" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -189,7 +234,7 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../R2R-Env-Aux - 副本" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../object_navigation" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -236,7 +281,7 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
-        <env name="CUDA_VISIBLE_DEVICES" value="7" />
+        <env name="CUDA_VISIBLE_DEVICES" value="6" />
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -280,30 +325,29 @@
       <workItem from="1589914262794" duration="3137000" />
       <workItem from="1590923403632" duration="3513000" />
       <workItem from="1591609559191" duration="3333000" />
-      <workItem from="1591950924389" duration="9838000" />
+      <workItem from="1591950924389" duration="24131000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="305624000" />
+    <option name="totallyTimeSpent" value="319917000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
-    <editor active="true" />
+    <frame x="-8" y="-1088" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49780703" visible="true" weight="0.21313673" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49780703" visible="true" weight="0.16950959" />
       <window_info id="Structure" order="1" sideWeight="0.502193" side_tool="true" weight="0.21313673" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.6617284" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.31586403" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49932975" weight="0.3550212" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.49932975" visible="true" weight="0.46854663" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" />
-      <window_info anchor="bottom" id="File Transfer" order="9" weight="0.1513437" />
+      <window_info anchor="bottom" id="File Transfer" order="9" weight="0.15014164" />
       <window_info anchor="bottom" id="Database Changes" order="10" />
       <window_info anchor="bottom" id="SOQL Query" order="11" />
       <window_info anchor="bottom" id="Log Analyzer" order="12" />
@@ -315,7 +359,7 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info active="true" anchor="right" id="Remote Host" order="3" sideWeight="0.49833333" visible="true" weight="0.1313673" />
+      <window_info anchor="right" id="Remote Host" order="3" sideWeight="0.49833333" weight="0.1313673" />
       <window_info anchor="right" id="SciView" order="4" sideWeight="0.8500707" weight="0.25603217" />
       <window_info anchor="right" id="Database" order="5" />
       <window_info anchor="right" x="0" y="0" width="193" height="842" id="Documentation" order="6" sideWeight="0.50166667" side_tool="true" weight="0.29758713" />
@@ -391,82 +435,84 @@
           <option name="timeStamp" value="228" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/r2r_src/train.py</url>
-          <line>137</line>
-          <option name="timeStamp" value="236" />
+          <url>file://$PROJECT_DIR$/r2r_src/model.py</url>
+          <line>189</line>
+          <option name="timeStamp" value="278" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
-        <watch expression="spe_loss" language="Python" />
-        <watch expression="logits.shape" language="Python" />
-        <watch expression="insts.shape" language="Python" />
-        <watch expression="perm_idx" language="Python" />
-        <watch expression="list(perm_idx)" language="Python" />
-        <watch expression="obs" language="Python" />
-        <watch expression="self.bce_loss(prob.squeeze(), progress_label)" language="Python" />
-        <watch expression="prob.squeeze()" language="Python" />
-        <watch expression="progress_label" language="Python" />
-        <watch expression="prob" language="Python" />
-        <watch expression="vl_ctx.detach().cpu().numpy()" language="Python" />
-        <watch expression="h_t" language="Python" />
-        <watch expression="a_t" language="Python" />
+        <watch expression="RN_attn_feat" language="Python" />
+        <watch expression="weighted_context.size()" language="Python" />
+        <watch expression="attn.size()" language="Python" />
+        <watch expression="attn.size(1)" language="Python" />
+        <watch expression="torch.zeros((self.num_heads,context.size(0),context.size(1)))" language="Python" />
+        <watch expression="torch.stack(append_logit).size()" language="Python" />
+        <watch expression="torch.stack(append_weighted_context).view(h.size(0), -1).size()" language="Python" />
+        <watch expression="output_logit.mean(dim=0).size()" language="Python" />
+        <watch expression="self.num_heads" language="Python" />
+        <watch expression="num_heads" language="Python" />
+        <watch expression="query_dim" language="Python" />
+        <watch expression="self.linear_out" language="Python" />
+        <watch expression="output_logit.size()" language="Python" />
+        <watch expression="self.linear_out(output_weighted_context)" language="Python" />
+        <watch expression="output_weighted_context.size()" language="Python" />
       </configuration>
     </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/R2R_Env_Aux$train.coverage" NAME="train Coverage Results" MODIFIED="1591960403267" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/R2R_Env_Aux$train.coverage" NAME="train Coverage Results" MODIFIED="1591981857860" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">
       <expression>
-        <expression-string>a_t</expression-string>
+        <expression-string>output_weighted_context.size()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>h_t</expression-string>
+        <expression-string>self.linear_out(output_weighted_context)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>vl_ctx.detach().cpu().numpy()</expression-string>
+        <expression-string>output_logit.size()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>vl_ctx</expression-string>
+        <expression-string>output_logit</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>prob</expression-string>
+        <expression-string>self.linear_out</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>progress_label</expression-string>
+        <expression-string>selflinear_out</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>prob.squeeze()</expression-string>
+        <expression-string>linear_out</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>self.bce_loss(prob.squeeze(), progress_label)</expression-string>
+        <expression-string>query_dim</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>obs</expression-string>
+        <expression-string>num_heads</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>list(perm_idx)</expression-string>
+        <expression-string>self.num_heads</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -529,24 +575,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/rnn.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="144" selection-start-line="144" selection-end-line="144" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/dropout.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="174">
           <caret line="53" selection-start-line="53" selection-end-line="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/r2r_src/speaker.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="201" column="11" lean-forward="true" selection-start-line="201" selection-start-column="11" selection-end-line="201" selection-end-column="11" />
         </state>
       </provider>
     </entry>
@@ -557,13 +589,6 @@
           <folding>
             <element signature="e#42#53#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/module.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="537" selection-start-line="537" selection-end-line="537" />
         </state>
       </provider>
     </entry>
@@ -626,10 +651,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/r2r_src/train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="166">
+          <caret line="135" column="16" selection-start-line="135" selection-start-column="16" selection-end-line="135" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
+            <element signature="e#12728#14747#0" />
+            <element signature="e#14799#19573#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r2r_src/speaker.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="115">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="46">
-          <caret line="101" column="8" selection-start-line="101" selection-start-column="8" selection-end-line="103" selection-end-column="13" />
+        <state relative-caret-position="136">
+          <caret line="565" selection-start-line="565" selection-end-line="565" />
           <folding>
             <element signature="e#1#12#0" expanded="true" />
             <element signature="e#438#2335#0" />
@@ -646,14 +690,32 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/rnn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="119" selection-start-line="119" selection-end-line="119" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/module.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="546" selection-start-line="546" selection-end-line="546" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="182" column="8" selection-start-line="182" selection-start-column="8" selection-end-line="215" selection-end-column="12" />
+        <state relative-caret-position="1033">
+          <caret line="392" selection-start-line="392" selection-end-line="392" />
           <folding>
             <element signature="e#236#3272#0" />
-            <element signature="e#3314#4909#0" />
+            <element signature="e#3485#3765#0" />
             <element signature="e#4938#6639#0" />
+            <element signature="e#6974#7268#0" />
+            <element signature="e#7334#8221#0" />
+            <element signature="e#8283#8640#0" />
+            <element signature="e#8667#8765#0" />
             <element signature="e#15619#23409#0" />
             <element signature="e#23450#23907#0" />
             <element signature="e#23948#24307#0" />
@@ -663,19 +725,6 @@
             <element signature="e#25586#28018#0" />
             <element signature="e#28057#29910#0" />
             <element signature="e#29963#31334#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/r2r_src/train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
-          <caret line="486" lean-forward="true" selection-start-line="486" selection-end-line="486" />
-          <folding>
-            <element signature="e#0#22#0" expanded="true" />
-            <element signature="e#5211#12682#0" />
-            <element signature="e#12728#14747#0" />
-            <element signature="e#14799#19573#0" />
           </folding>
         </state>
       </provider>
