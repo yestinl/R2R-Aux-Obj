@@ -465,9 +465,24 @@ def train_val():
 
     feat_dict = read_img_features(features)
 
+    # load object feature
+    obj_s_feat = None
+    if args.sparseObj:
+        obj_s_feat = utils.read_obj_sparse_features(sparse_obj_feat, args.objthr)
+
+    obj_d_feat = None
+    if args.denseObj:
+        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, args.objthr)
+
     featurized_scans = set([key.split("_")[0] for key in list(feat_dict.keys())])
 
-    train_env = R2RBatch(feat_dict, batch_size=args.batchSize, splits=['train'], tokenizer=tok)
+    # train_env = R2RBatch(feat_dict, batch_size=args.batchSize, splits=['train'], tokenizer=tok)
+    if args.multi:
+        train_env = R2RBatch_Multi(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize,
+                         splits=['train'], tokenizer=tok)
+    else:
+        train_env = R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize,
+                             splits=['train'], tokenizer=tok)
     from collections import OrderedDict
 
     val_env_names = ['val_unseen', 'val_seen']
@@ -480,14 +495,35 @@ def train_val():
     if not args.beam:
         val_env_names.append("train")
 
+    # if args.multi:
+    #     val_envs = OrderedDict(
+    #     ((split,
+    #       (R2RBatch_Multi(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
+    #                 tokenizer=tok),
+    #        Evaluation([split], featurized_scans, tok))
+    #       )
+    #      for split in val_env_names
+    #      )
+    # )
+    # else:
     val_envs = OrderedDict(
         ((split,
-          (R2RBatch(feat_dict, batch_size=args.batchSize, splits=[split], tokenizer=tok),
+          (R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
+                    tokenizer=tok),
            Evaluation([split], featurized_scans, tok))
           )
          for split in val_env_names
          )
     )
+
+    # val_envs = OrderedDict(
+    #     ((split,
+    #       (R2RBatch(feat_dict, batch_size=args.batchSize, splits=[split], tokenizer=tok),
+    #        Evaluation([split], featurized_scans, tok))
+    #       )
+    #      for split in val_env_names
+    #      )
+    # )
 
     if args.train == 'listener':
         train(train_env, tok, args.iters, val_envs=val_envs)
@@ -547,6 +583,18 @@ def train_val_augment():
     feat_dict = read_img_features(features)
     featurized_scans = set([key.split("_")[0] for key in list(feat_dict.keys())])
 
+    # Load the env obj features
+    obj_s_feat = None
+    if args.sparseObj:
+        print("Start loading the object sparse feature")
+        start = time.time()
+        obj_s_feat = np.load(sparse_obj_feat, allow_pickle=True).item()
+        print("Finish Loading the object sparse feature from %s in %0.4f seconds" % (
+            sparse_obj_feat, time.time() - start))
+
+    obj_d_feat = None
+    if args.denseObj:
+        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, args.objthr)
 
     # Load the augmentation data
     if args.upload:
@@ -555,10 +603,14 @@ def train_val_augment():
         aux_path = os.path.join(args.R2R_Aux_path, args.aug)
 
     # Create the training environment
-    train_env = R2RBatch(feat_dict, batch_size=args.batchSize,
+    train_env = R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize,
                          splits=['train'], tokenizer=tok)
-    aug_env   = R2RBatch(feat_dict, batch_size=args.batchSize,
-                         splits=[aug_path], tokenizer=tok, name='aug')
+    aug_env = R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize,
+                       splits=[aug_path], tokenizer=tok, name='aug')
+    # train_env = R2RBatch(feat_dict, batch_size=args.batchSize,
+    #                      splits=['train'], tokenizer=tok)
+    # aug_env   = R2RBatch(feat_dict, batch_size=args.batchSize,
+    #                      splits=[aug_path], tokenizer=tok, name='aug')
 
     # Printing out the statistics of the dataset
     stats = train_env.get_statistics()
@@ -571,9 +623,14 @@ def train_val_augment():
     print("The average action length of the dataset is %0.4f." % (stats['path']))
 
     # Setup the validation data
-    val_envs = {split: (R2RBatch(feat_dict, batch_size=args.batchSize, splits=[split],
-                                 tokenizer=tok), Evaluation([split], featurized_scans, tok))
+    val_envs = {split: (
+    R2RBatch(feat_dict, obj_d_feat=obj_d_feat, obj_s_feat=obj_s_feat, batch_size=args.batchSize, splits=[split],
+             tokenizer=tok), Evaluation([split], featurized_scans, tok))
                 for split in ['train', 'val_seen', 'val_unseen']}
+
+    # val_envs = {split: (R2RBatch(feat_dict, batch_size=args.batchSize, splits=[split],
+    #                              tokenizer=tok), Evaluation([split], featurized_scans, tok))
+    #             for split in ['train', 'val_seen', 'val_unseen']}
 
     # Start training
     train(train_env, tok, args.iters, val_envs=val_envs, aug_env=aug_env)
