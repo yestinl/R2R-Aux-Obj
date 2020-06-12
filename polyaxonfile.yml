@@ -1,0 +1,17 @@
+version: 1
+kind: experiment
+build:
+    image: docker.dm-ai.cn/algorithm-research/matteraux:latest
+environment:
+    resources:
+        cpu:
+            requests: 1
+            limits: 2
+        gpu:
+            requests: 1
+            limits: 1
+    outputs:
+        experiments: [10647]
+
+run:
+    cmd: python3.6 r2r_src/train.py --upload --submit  --speWeight 1 --angWeight 2 --feaWeight  1 --name R2R_Env_spe_ang_fea_0
