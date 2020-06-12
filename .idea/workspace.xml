@@ -10,7 +10,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/r2r_src/agent.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="377">
@@ -63,11 +63,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/polyaxonfile.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="368">
-              <caret line="16" column="126" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="126" />
+            <state relative-caret-position="161">
+              <caret line="7" column="23" lean-forward="true" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -136,6 +136,9 @@
       <replace>multi</replace>
     </replaceStrings>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -156,6 +159,7 @@
     <option name="width" value="1938" />
     <option name="height" value="1048" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
@@ -169,11 +173,6 @@
               <item name="R2R-Env-Aux" type="b2602c69:ProjectViewProjectNode" />
               <item name="R2R-Env-Aux" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="R2R-Env-Aux" type="b2602c69:ProjectViewProjectNode" />
-              <item name="R2R-Env-Aux" type="462c0819:PsiDirectoryNode" />
-              <item name="r2r_src" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -181,6 +180,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
     <property name="WebServerToolWindowPanel.toolwindow.highlight.symlinks" value="true" />
@@ -278,22 +278,23 @@
       <workItem from="1589914262794" duration="3137000" />
       <workItem from="1590923403632" duration="3513000" />
       <workItem from="1591609559191" duration="3333000" />
-      <workItem from="1591950924389" duration="8187000" />
+      <workItem from="1591950924389" duration="8799000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="303973000" />
+    <option name="totallyTimeSpent" value="304585000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49780703" visible="true" weight="0.21313673" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49780703" visible="true" weight="0.21313673" />
       <window_info id="Structure" order="1" sideWeight="0.502193" side_tool="true" weight="0.21313673" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.6617284" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.31541726" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.31586403" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49932975" weight="0.3550212" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -312,7 +313,7 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info active="true" anchor="right" id="Remote Host" order="3" sideWeight="0.49833333" visible="true" weight="0.1313673" />
+      <window_info anchor="right" id="Remote Host" order="3" sideWeight="0.49833333" visible="true" weight="0.1313673" />
       <window_info anchor="right" id="SciView" order="4" sideWeight="0.8500707" weight="0.25603217" />
       <window_info anchor="right" id="Database" order="5" />
       <window_info anchor="right" x="0" y="0" width="193" height="842" id="Documentation" order="6" sideWeight="0.50166667" side_tool="true" weight="0.29758713" />
@@ -616,27 +617,6 @@
         <state relative-caret-position="-1468" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/r2r_src/agent.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="377">
-          <caret line="474" column="55" selection-start-line="474" selection-start-column="55" selection-end-line="474" selection-end-column="55" />
-          <folding>
-            <element signature="e#1#12#0" expanded="true" />
-            <element signature="e#438#2335#0" />
-            <element signature="e#18634#19486#0" />
-            <element signature="e#10183#12229#0" />
-            <element signature="e#19829#20437#0" />
-            <element signature="e#22553#23504#0" />
-            <element signature="e#44244#54956#0" />
-            <element signature="e#55002#57733#0" />
-            <element signature="e#57784#58191#0" />
-            <element signature="e#58290#58668#0" />
-            <element signature="e#58703#58973#0" />
-            <element signature="e#59048#59482#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/model.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1302">
@@ -674,8 +654,29 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/polyaxonfile.yml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="16" column="126" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="126" />
+        <state relative-caret-position="161">
+          <caret line="7" column="23" lean-forward="true" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/r2r_src/agent.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="377">
+          <caret line="474" column="55" selection-start-line="474" selection-start-column="55" selection-end-line="474" selection-end-column="55" />
+          <folding>
+            <element signature="e#1#12#0" expanded="true" />
+            <element signature="e#438#2335#0" />
+            <element signature="e#18634#19486#0" />
+            <element signature="e#10183#12229#0" />
+            <element signature="e#19829#20437#0" />
+            <element signature="e#22553#23504#0" />
+            <element signature="e#44244#54956#0" />
+            <element signature="e#55002#57733#0" />
+            <element signature="e#57784#58191#0" />
+            <element signature="e#58290#58668#0" />
+            <element signature="e#58703#58973#0" />
+            <element signature="e#59048#59482#0" />
+          </folding>
         </state>
       </provider>
     </entry>
