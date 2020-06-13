@@ -747,7 +747,7 @@ def get_sync_dir(file):
     # 只改source_data就好
     source_data = file
 
-    sync_source_dir = os.path.join(get_data_paths()['ssd'], source_data.strip('/'))
+    sync_source_dir = os.path.join(get_data_paths()['ssd20'], source_data.strip('/'))
     sync_dest_dir = os.path.join(get_data_paths()['host-path'],
                                  os.path.dirname(source_data.strip('/')))
 
