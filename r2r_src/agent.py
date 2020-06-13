@@ -127,7 +127,8 @@ class Seq2SeqAgent(BaseAgent):
             self.matching_attention = model.SoftDotAttention(args.rnn_dim, args.rnn_dim).cuda()
         self.feature_predictor = model.FeaturePredictor().cuda()
         self.angle_predictor = model.AnglePredictor().cuda()
-        self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_network)
+        self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_network,
+                           self.feature_predictor,self.angle_predictor)
 
         # Optimizers
         self.encoder_optimizer = args.optimizer(self.encoder.parameters(), lr=args.lr)
@@ -1228,6 +1229,8 @@ class Seq2SeqAgent(BaseAgent):
         self.encoder.train()
         self.decoder.train()
         self.critic.train()
+        for model in self.aux_models:
+            model.train()
 
         self.losses = []
         for iter in range(1, n_iters + 1):

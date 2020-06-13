@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c9fad949-7e44-4d72-a043-557aea80f43a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/polyaxonfile.yml" beforeDir="false" afterPath="$PROJECT_DIR$/polyaxonfile.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/r2r_src/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2r_src/agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/r2r_src/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2r_src/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2r_src/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2r_src/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/r2r_src/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2r_src/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script.doc" beforeDir="false" afterPath="$PROJECT_DIR$/script.doc" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,75 +19,41 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/r2r_src/agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="46">
-              <caret line="101" column="8" selection-start-line="101" selection-start-column="8" selection-end-line="103" selection-end-column="13" />
+            <state relative-caret-position="-3829">
+              <caret line="499" column="14" selection-start-line="499" selection-start-column="8" selection-end-line="499" selection-end-column="14" />
               <folding>
                 <element signature="e#1#12#0" expanded="true" />
                 <element signature="e#438#2335#0" />
+                <element signature="e#9188#16110#0" />
                 <element signature="e#18634#19486#0" />
-                <element signature="e#19829#20437#0" />
-                <element signature="e#22553#23504#0" />
-                <element signature="e#44244#54956#0" />
-                <element signature="e#55002#57733#0" />
-                <element signature="e#57784#58191#0" />
-                <element signature="e#58290#58668#0" />
-                <element signature="e#58703#58973#0" />
-                <element signature="e#59048#59482#0" />
               </folding>
             </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/r2r_src/bleu.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1468" />
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/r2r_src/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="23">
-              <caret line="182" column="8" selection-start-line="182" selection-start-column="8" selection-end-line="215" selection-end-column="12" />
+            <state relative-caret-position="-90">
+              <caret line="158" lean-forward="true" selection-start-line="158" selection-end-line="158" />
               <folding>
                 <element signature="e#236#3272#0" />
-                <element signature="e#3314#4909#0" />
-                <element signature="e#4938#6639#0" />
-                <element signature="e#15619#23409#0" />
-                <element signature="e#23450#23907#0" />
-                <element signature="e#23948#24307#0" />
-                <element signature="e#24346#24737#0" />
-                <element signature="e#24779#25173#0" />
-                <element signature="e#25205#25547#0" />
-                <element signature="e#25586#28018#0" />
-                <element signature="e#28057#29910#0" />
-                <element signature="e#29963#31334#0" />
+                <element signature="e#7496#9197#0" />
+                <element signature="e#9892#10779#0" />
+                <element signature="e#18290#26080#0" />
+                <element signature="e#26121#26578#0" />
+                <element signature="e#26619#26978#0" />
+                <element signature="e#27017#27408#0" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/polyaxonfile.yml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="161">
-              <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/r2r_src/train.py">
+        <entry file="file://$PROJECT_DIR$/polyaxonfile.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="184">
-              <caret line="486" lean-forward="true" selection-start-line="486" selection-end-line="486" />
-              <folding>
-                <element signature="e#0#22#0" expanded="true" />
-                <element signature="e#5211#12682#0" />
-                <element signature="e#12728#14747#0" />
-                <element signature="e#14799#19573#0" />
-              </folding>
+            <state relative-caret-position="368">
+              <caret line="16" column="93" selection-start-line="16" selection-start-column="93" selection-end-line="16" selection-end-column="93" />
             </state>
           </provider>
         </entry>
@@ -94,11 +62,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>3</find>
-      <find>rnn_dim</find>
-      <find>seq_lengths</find>
-      <find>make_equ</find>
-      <find>args.multi</find>
       <find>panorama_objs_bbox_0_5.npy</find>
       <find>args.mod</find>
       <find>accur</find>
@@ -124,6 +87,11 @@
       <find>multi</find>
       <find>obj</find>
       <find>decoder</find>
+      <find>ssd</find>
+      <find>self.aux_models</find>
+      <find>zero_grad</find>
+      <find>.train()</find>
+      <find>policy</find>
     </findStrings>
     <replaceStrings>
       <replace>candidate_feat</replace>
@@ -148,10 +116,10 @@
         <option value="$PROJECT_DIR$/r2r_src/utils.py" />
         <option value="$PROJECT_DIR$/r2r_src/env.py" />
         <option value="$PROJECT_DIR$/r2r_src/param.py" />
-        <option value="$PROJECT_DIR$/polyaxonfile.yml" />
+        <option value="$PROJECT_DIR$/r2r_src/train.py" />
         <option value="$PROJECT_DIR$/r2r_src/agent.py" />
         <option value="$PROJECT_DIR$/r2r_src/model.py" />
-        <option value="$PROJECT_DIR$/r2r_src/train.py" />
+        <option value="$PROJECT_DIR$/polyaxonfile.yml" />
       </list>
     </option>
   </component>
@@ -175,6 +143,11 @@
               <item name="R2R-Env-Aux" type="b2602c69:ProjectViewProjectNode" />
               <item name="R2R-Env-Aux" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="R2R-Env-Aux" type="b2602c69:ProjectViewProjectNode" />
+              <item name="R2R-Env-Aux" type="462c0819:PsiDirectoryNode" />
+              <item name="r2r_src" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -189,11 +162,11 @@
     <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
     <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../R2R-Env-Aux - 副本" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../object_navigation/r2r_src/agent.py" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../R2R-Aux-upload-RL/r2r_src/utils.py" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../object_navigation/r2r_src/agent.py" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -285,13 +258,13 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="305624000" />
+    <option name="totallyTimeSpent" value="316835000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49780703" visible="true" weight="0.21313673" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49780703" visible="true" weight="0.21514745" />
       <window_info id="Structure" order="1" sideWeight="0.502193" side_tool="true" weight="0.21313673" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -303,7 +276,7 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" />
-      <window_info anchor="bottom" id="File Transfer" order="9" weight="0.1513437" />
+      <window_info anchor="bottom" id="File Transfer" order="9" visible="true" weight="0.07082153" />
       <window_info anchor="bottom" id="Database Changes" order="10" />
       <window_info anchor="bottom" id="SOQL Query" order="11" />
       <window_info anchor="bottom" id="Log Analyzer" order="12" />
@@ -315,7 +288,7 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info active="true" anchor="right" id="Remote Host" order="3" sideWeight="0.49833333" visible="true" weight="0.1313673" />
+      <window_info anchor="right" id="Remote Host" order="3" sideWeight="0.49833333" visible="true" weight="0.1313673" />
       <window_info anchor="right" id="SciView" order="4" sideWeight="0.8500707" weight="0.25603217" />
       <window_info anchor="right" id="Database" order="5" />
       <window_info anchor="right" x="0" y="0" width="193" height="842" id="Documentation" order="6" sideWeight="0.50166667" side_tool="true" weight="0.29758713" />
@@ -416,7 +389,7 @@
     </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/R2R_Env_Aux$train.coverage" NAME="train Coverage Results" MODIFIED="1591960403267" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/R2R_Env_Aux$train.coverage" NAME="train Coverage Results" MODIFIED="1591981857860" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">
@@ -531,8 +504,8 @@
     </entry>
     <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/rnn.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="144" selection-start-line="144" selection-end-line="144" />
+        <state relative-caret-position="2507">
+          <caret line="119" selection-start-line="119" selection-end-line="119" />
         </state>
       </provider>
     </entry>
@@ -545,8 +518,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/speaker.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="201" column="11" lean-forward="true" selection-start-line="201" selection-start-column="11" selection-end-line="201" selection-end-column="11" />
+        <state relative-caret-position="115">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
         </state>
       </provider>
     </entry>
@@ -562,8 +535,8 @@
     </entry>
     <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/module.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="537" selection-start-line="537" selection-end-line="537" />
+        <state relative-caret-position="12397">
+          <caret line="546" selection-start-line="546" selection-end-line="546" />
         </state>
       </provider>
     </entry>
@@ -597,8 +570,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="501">
-          <caret line="77" column="96" selection-start-line="77" selection-start-column="91" selection-end-line="77" selection-end-column="96" />
+        <state relative-caret-position="280">
+          <caret line="754" column="41" selection-start-line="754" selection-start-column="41" selection-end-line="754" selection-end-column="41" />
           <folding>
             <element signature="e#533#1713#0" />
             <element signature="e#3255#6990#0" />
@@ -619,64 +592,51 @@
         <state relative-caret-position="-1468" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/polyaxonfile.yml">
+    <entry file="file://$PROJECT_DIR$/r2r_src/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="161">
-          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+        <state relative-caret-position="92">
+          <caret line="4" column="40" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
+            <element signature="e#12728#14747#0" />
+            <element signature="e#14799#19573#0" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="46">
-          <caret line="101" column="8" selection-start-line="101" selection-start-column="8" selection-end-line="103" selection-end-column="13" />
+        <state relative-caret-position="-3829">
+          <caret line="499" column="14" selection-start-line="499" selection-start-column="8" selection-end-line="499" selection-end-column="14" />
           <folding>
             <element signature="e#1#12#0" expanded="true" />
             <element signature="e#438#2335#0" />
+            <element signature="e#9188#16110#0" />
             <element signature="e#18634#19486#0" />
-            <element signature="e#19829#20437#0" />
-            <element signature="e#22553#23504#0" />
-            <element signature="e#44244#54956#0" />
-            <element signature="e#55002#57733#0" />
-            <element signature="e#57784#58191#0" />
-            <element signature="e#58290#58668#0" />
-            <element signature="e#58703#58973#0" />
-            <element signature="e#59048#59482#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="182" column="8" selection-start-line="182" selection-start-column="8" selection-end-line="215" selection-end-column="12" />
+        <state relative-caret-position="-90">
+          <caret line="158" lean-forward="true" selection-start-line="158" selection-end-line="158" />
           <folding>
             <element signature="e#236#3272#0" />
-            <element signature="e#3314#4909#0" />
-            <element signature="e#4938#6639#0" />
-            <element signature="e#15619#23409#0" />
-            <element signature="e#23450#23907#0" />
-            <element signature="e#23948#24307#0" />
-            <element signature="e#24346#24737#0" />
-            <element signature="e#24779#25173#0" />
-            <element signature="e#25205#25547#0" />
-            <element signature="e#25586#28018#0" />
-            <element signature="e#28057#29910#0" />
-            <element signature="e#29963#31334#0" />
+            <element signature="e#7496#9197#0" />
+            <element signature="e#9892#10779#0" />
+            <element signature="e#18290#26080#0" />
+            <element signature="e#26121#26578#0" />
+            <element signature="e#26619#26978#0" />
+            <element signature="e#27017#27408#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/r2r_src/train.py">
+    <entry file="file://$PROJECT_DIR$/polyaxonfile.yml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
-          <caret line="486" lean-forward="true" selection-start-line="486" selection-end-line="486" />
-          <folding>
-            <element signature="e#0#22#0" expanded="true" />
-            <element signature="e#5211#12682#0" />
-            <element signature="e#12728#14747#0" />
-            <element signature="e#14799#19573#0" />
-          </folding>
+        <state relative-caret-position="368">
+          <caret line="16" column="93" selection-start-line="16" selection-start-column="93" selection-end-line="16" selection-end-column="93" />
         </state>
       </provider>
     </entry>
