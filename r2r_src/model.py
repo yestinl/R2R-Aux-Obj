@@ -132,7 +132,7 @@ class MultiHeadSelfAttention(nn.Module):
     Adapted from PyTorch OPEN NMT.
     '''
 
-    def __init__(self,num_heads, query_dim, ctx_dim):
+    def __init__(self,num_heads, query_dim, ctx_dim, dropout_ratio):
         '''Initialize layer.'''
         super(MultiHeadSelfAttention, self).__init__()
         self.num_heads = num_heads
@@ -141,6 +141,7 @@ class MultiHeadSelfAttention(nn.Module):
         self.linear_concat_out = nn.Linear(self.num_heads*query_dim + ctx_dim, query_dim, bias=False)
         self.linear_out = nn.Linear(self.num_heads*ctx_dim, ctx_dim,bias=False)
         self.tanh = nn.Tanh()
+        self.drop = nn.Dropout(p=dropout_ratio)
 
     def forward(self, h, context, mask=None,
                 output_tilde=True, output_prob=True):
@@ -187,8 +188,9 @@ class MultiHeadSelfAttention(nn.Module):
             h_tilde = self.tanh(self.linear_concat_out(h_tilde))
             return h_tilde, output_attn
         else:
-            output_weighted_context = self.linear_out(output_weighted_context)
-            return output_weighted_context, output_attn
+            drop_weighted_context = self.drop(output_weighted_context)
+            output_attn_context = self.linear_out(drop_weighted_context)
+            return output_attn_context, output_attn
 
 class Gate(nn.Module):
     '''Soft Dot Attention.
@@ -291,7 +293,7 @@ class AttnDecoderLSTM(nn.Module):
         self.drop_env = nn.Dropout(p=args.featdropout)
         self.lstm = nn.LSTMCell(embedding_size+feature_size, hidden_size)
         # self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
-        self.feat_att_layer = MultiHeadSelfAttention(3, hidden_size, args.feature_size + args.angle_feat_size)
+        self.feat_att_layer = MultiHeadSelfAttention(3, hidden_size, args.feature_size + args.angle_feat_size, args.featdropout)
         if args.denseObj:
             print("Train in %s mode."%args.objInputMode)
             if (args.objInputMode == 'sg') or (args.objInputMode == 'tanh'):
