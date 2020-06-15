@@ -136,7 +136,9 @@ class MultiHeadSelfAttention(nn.Module):
         '''Initialize layer.'''
         super(MultiHeadSelfAttention, self).__init__()
         self.num_heads = num_heads
-        self.linear_in = nn.Linear(query_dim, ctx_dim, bias=False)
+        self.linear_in = []
+        for i in range(self.num_heads):
+            self.linear_in.append(nn.Linear(query_dim,ctx_dim,bias=False).cuda())
         self.sm = nn.Softmax()
         self.linear_concat_out = nn.Linear(self.num_heads*ctx_dim+query_dim, query_dim, bias=False)
         self.linear_out = nn.Linear(self.num_heads*ctx_dim, ctx_dim,bias=False)
@@ -156,7 +158,7 @@ class MultiHeadSelfAttention(nn.Module):
 
         for i in range(self.num_heads):
 
-            target = self.linear_in(h).unsqueeze(2)  # batch x dim x 1
+            target = self.linear_in[i](h).unsqueeze(2)  # batch x dim x 1
 
             # Get attention
             attn = torch.bmm(context, target).squeeze(2)  # batch x seq_len
@@ -174,7 +176,7 @@ class MultiHeadSelfAttention(nn.Module):
             append_attn.append(attn)
 
         output_logit = torch.stack(append_logit)
-        output_weighted_context = torch.stack(append_weighted_context).view(h.size(0), -1)
+        output_weighted_context = torch.cat(append_weighted_context,1)
         output_attn = torch.stack(append_attn)
 
         output_logit = output_logit.mean(dim=0)
@@ -187,7 +189,7 @@ class MultiHeadSelfAttention(nn.Module):
             h_tilde = self.tanh(self.linear_concat_out(h_tilde))
             return h_tilde, output_attn
         else:
-            output_weighted_context = self.linear_out(output_weighted_context)
+            # output_weighted_context = self.linear_out(output_weighted_context)
             return output_weighted_context, output_attn
 
 class Gate(nn.Module):
@@ -289,9 +291,9 @@ class AttnDecoderLSTM(nn.Module):
         )
         self.drop = nn.Dropout(p=dropout_ratio)
         self.drop_env = nn.Dropout(p=args.featdropout)
-        self.lstm = nn.LSTMCell(embedding_size+feature_size, hidden_size)
-        self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
-        # self.feat_att _layer = MultiHeadSelfAttention(3, hidden_size, args.feature_size + args.angle_feat_size)
+        self.lstm = nn.LSTMCell(embedding_size+feature_size*args.headNum, hidden_size)
+        # self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
+        self.feat_att_layer = MultiHeadSelfAttention(args.headNum, hidden_size, args.feature_size + args.angle_feat_size)
         if args.denseObj:
             print("Train in %s mode."%args.objInputMode)
             if (args.objInputMode == 'sg') or (args.objInputMode == 'tanh'):
@@ -315,8 +317,8 @@ class AttnDecoderLSTM(nn.Module):
                 self.sparse_input_layer = Gate(hidden_size, args.glove_emb + args.angle_bbox_size)
             elif args.objInputMode == 'sm':
                 self.sparse_input_layer = SoftDotAttention(hidden_size, args.glove_emb+args.angle_bbox_size)
-        # self.attention_layer = SoftDotAttention(hidden_size, hidden_size)
-        self.attention_layer = MultiHeadSelfAttention(3, hidden_size, hidden_size)
+        self.attention_layer = SoftDotAttention(hidden_size, hidden_size)
+        # self.attention_layer = MultiHeadSelfAttention(3, hidden_size, hidden_size)
         self.candidate_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
         # self.candidate_att_layer = MultiHeadSelfAttention(3, hidden_size, args.feature_size+args.angle_feat_size)
 

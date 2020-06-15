@@ -108,6 +108,9 @@ class Param:
         self.parser.add_argument("--multi", dest='multi', action='store_const', default=False, const=True)
         self.parser.add_argument("--multiNum", dest="multiNum", type=int, default=3)
 
+        # Multi
+        self.parser.add_argument("--headNum", dest="headNum", type=int, default=2)
+
         # visualize
         self.parser.add_argument("--analizePath", dest='analizePath', action='store_const', default=False, const=True)
 
