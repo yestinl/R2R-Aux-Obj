@@ -141,7 +141,7 @@ class MultiHeadSelfAttention(nn.Module):
             self.linear_in.append(nn.Linear(query_dim,ctx_dim,bias=False).cuda())
         self.sm = nn.Softmax()
         self.linear_concat_out = nn.Linear(self.num_heads*ctx_dim+query_dim, query_dim, bias=False)
-        self.linear_out = nn.Linear(self.num_heads*ctx_dim, ctx_dim,bias=False)
+        # self.linear_out = nn.Linear(self.num_heads*ctx_dim, ctx_dim,bias=False)
         self.tanh = nn.Tanh()
 
     def forward(self, h, context, mask=None,
