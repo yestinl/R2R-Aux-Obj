@@ -40,10 +40,6 @@ from tensorboardX import SummaryWriter
 from polyaxon_client.tracking import get_outputs_path
 
 if args.upload:
-    # for filename in os.listdir(get_sync_dir(args.upload_path)):
-    #     print("filename: ", filename)
-    # print(get_sync_dir(args.upload_path))
-    # sys.exit()
     train_vocab = get_sync_dir(os.path.join(args.upload_path,args.TRAIN_VOCAB))
     trainval_vocab = get_sync_dir(os.path.join(args.upload_path,args.TRAINVAL_VOCAB))
     features = get_sync_dir(os.path.join(args.upload_path,args.IMAGENET_FEATURES))
