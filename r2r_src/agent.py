@@ -92,7 +92,8 @@ class Seq2SeqAgent(BaseAgent):
         super(Seq2SeqAgent, self).__init__(env, results_path)
         self.tok = tok
         self.episode_len = episode_len
-        self.feature_size = self.env.feature_size
+        if self.env is not None:
+            self.feature_size = self.env.feature_size
 
         # Models
         enc_hidden_size = args.rnn_dim//2 if args.bidir else args.rnn_dim

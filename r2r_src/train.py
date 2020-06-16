@@ -84,7 +84,10 @@ def train_speaker(train_env, tok, n_iters, log_every=500, val_envs={}):
 
     if args.load is not None:
         print("LOAD THE Speaker from %s" % args.load)
-        speaker.load(os.path.join(args.load))
+        if args.upload:
+            speaker.load(get_sync_dir(args.load))
+        else:
+            speaker.load(os.path.join(args.load))
 
     if args.fast_train:
         log_every = 40
@@ -476,7 +479,7 @@ def train_val():
 
     obj_d_feat = None
     if args.denseObj:
-        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, args.objthr)
+        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_feat, args.objthr)
 
     featurized_scans = set([key.split("_")[0] for key in list(feat_dict.keys())])
 
@@ -549,7 +552,7 @@ def valid_speaker(tok, val_envs):
     listner = Seq2SeqAgent(None, "", tok, args.maxAction)
     speaker = Speaker(None, listner, tok)
     if args.upload:
-        speaker.load(get_sync_dir(os.path.join(args.upload_path,args.load)))
+        speaker.load(get_sync_dir('lyx/snap/speaker/state_dict/best_val_unseen_bleu'))
     else:
         speaker.load(os.path.join(args.R2R_Aux_path, args.load))
 

@@ -15,4 +15,4 @@ environment:
 
 
 run:
-    cmd: python3.6  r2r_src/train.py  --submit --upload --headNum=4 --multiMode can --name Envdrop_MultiAttention_Candidate_4_head
+    cmd: python3.6  r2r_src/train.py  --submit --upload --train speaker --name valid_speaker --load lyx/snap/speaker/state_dict/best_val_unseen_bleu

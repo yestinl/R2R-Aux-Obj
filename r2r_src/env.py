@@ -413,6 +413,21 @@ class R2RBatch():
                         for k,v in enumerate(odf['concat_viewIndex']):
                             obs_dict['obj_d_feature'][k] = np.concatenate(
                                 (odf['concat_feature'][k], self.angle_feature[base_view_id][v]))
+                elif args.catfeat == 'he':
+                    if odf['concat_text'][0] == 'zero':
+                        obs_dict['obj_d_feature'] = np.concatenate(
+                            (odf['concat_feature'], np.zeros((1, args.angle_feat_size))), axis=1)
+                    elif odf['concat_text'][0] == 'average':
+                        he = np.tile(np.concatenate((odf['concat_angles_h'],odf['concat_angles_e']),axis=1),args.angle_feat_size//8)
+                        obs_dict['obj_d_feature'] = np.concatenate(
+                            (odf['concat_feature'],he),1)
+                    else:
+                        obs_dict['obj_d_feature'] = np.zeros((len(odf['concat_feature']),args.angle_feat_size+args.feature_size))
+                        for k,v in enumerate(odf['concat_viewIndex']):
+                            he = np.tile(np.concatenate((odf['concat_angles_h'][k], odf['concat_angles_e'][k])),
+                                         args.angle_feat_size // 8)
+                            obs_dict['obj_d_feature'][k] = np.concatenate(
+                                (odf['concat_feature'][k], he))
             obs.append(obs_dict)
             if 'instr_encoding' in item:
                 obs[-1]['instr_encoding'] = item['instr_encoding']

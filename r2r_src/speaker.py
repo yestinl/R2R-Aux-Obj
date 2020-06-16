@@ -21,7 +21,8 @@ class Speaker():
 
     def __init__(self, env, listener, tok):
         self.env = env
-        self.feature_size = self.env.feature_size
+        if env is not None:
+            self.feature_size = self.env.feature_size
         self.tok = tok
         self.tok.finalize()
         self.listener = listener
