@@ -1,0 +1,25 @@
+version: 1
+kind: group
+build:
+    image: docker.dm-ai.cn/algorithm-research/matteraux:latest
+hptuning:
+    concurrency: 15
+    matrix:
+        headNum:
+            values: [1,2,4,6,8]
+        multiMode:
+            values: [vis,ins,can]
+environment:
+    resources:
+        cpu:
+            requests: 1
+            limits: 2
+        gpu:
+            requests: 1
+            limits: 1
+    outputs:
+        experiments: [10647]
+
+
+run:
+    cmd: python3.6  r2r_src/train.py  --submit --upload --headNum={{headNum}} --multiMode={{multiMode}} --name Envdrop_MultiAttention_{{multiMode}}_{{headNum}}_head

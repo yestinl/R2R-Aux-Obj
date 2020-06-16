@@ -291,9 +291,13 @@ class AttnDecoderLSTM(nn.Module):
         )
         self.drop = nn.Dropout(p=dropout_ratio)
         self.drop_env = nn.Dropout(p=args.featdropout)
-        self.lstm = nn.LSTMCell(embedding_size+feature_size*args.headNum, hidden_size)
-        # self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
-        self.feat_att_layer = MultiHeadSelfAttention(args.headNum, hidden_size, args.feature_size + args.angle_feat_size)
+
+        if args.multiMode == "vis":
+            self.feat_att_layer = MultiHeadSelfAttention(args.headNum, hidden_size, args.feature_size + args.angle_feat_size)
+            self.lstm = nn.LSTMCell(embedding_size+feature_size*args.headNum, hidden_size)
+        else:
+            self.lstm = nn.LSTMCell(embedding_size + feature_size, hidden_size)
+            self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size + args.angle_feat_size)
         if args.denseObj:
             print("Train in %s mode."%args.objInputMode)
             if (args.objInputMode == 'sg') or (args.objInputMode == 'tanh'):
@@ -317,10 +321,16 @@ class AttnDecoderLSTM(nn.Module):
                 self.sparse_input_layer = Gate(hidden_size, args.glove_emb + args.angle_bbox_size)
             elif args.objInputMode == 'sm':
                 self.sparse_input_layer = SoftDotAttention(hidden_size, args.glove_emb+args.angle_bbox_size)
-        self.attention_layer = SoftDotAttention(hidden_size, hidden_size)
-        # self.attention_layer = MultiHeadSelfAttention(3, hidden_size, hidden_size)
-        self.candidate_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
-        # self.candidate_att_layer = MultiHeadSelfAttention(3, hidden_size, args.feature_size+args.angle_feat_size)
+
+        if args.multiMode == 'ins':
+            self.attention_layer = MultiHeadSelfAttention(args.headNum, hidden_size, hidden_size)
+        else:
+            self.attention_layer = SoftDotAttention(hidden_size, hidden_size)
+        if args.multiMode == 'can':
+            self.candidate_att_layer = MultiHeadSelfAttention(args.headNum, hidden_size, args.feature_size+args.angle_feat_size)
+        else:
+            self.candidate_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
+
 
     def forward(self, action, cand_feat,
                 prev_h1, c_0,

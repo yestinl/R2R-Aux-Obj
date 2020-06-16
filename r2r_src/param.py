@@ -110,6 +110,7 @@ class Param:
 
         # Multi
         self.parser.add_argument("--headNum", dest="headNum", type=int, default=2)
+        self.parser.add_argument("--multiMode", type=str, default="") # vis,can,ins
 
         # visualize
         self.parser.add_argument("--analizePath", dest='analizePath', action='store_const', default=False, const=True)
