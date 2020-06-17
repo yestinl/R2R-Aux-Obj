@@ -650,14 +650,20 @@ class SpeakerEncoder(nn.Module):
         if bidirectional:
             print("BIDIR in speaker encoder!!")
 
+        if args.denseObj:
+            self.obj_attn = SoftDotAttention(self.hidden_size, args.feature_size)
+            self.post_lstm = nn.LSTM(self.hidden_size*2, self.hidden_size // self.num_directions, self.num_layers,
+                                 batch_first=True, dropout=dropout_ratio, bidirectional=bidirectional)
+        else:
+            self.post_lstm = nn.LSTM(self.hidden_size, self.hidden_size // self.num_directions, self.num_layers,
+                                     batch_first=True, dropout=dropout_ratio, bidirectional=bidirectional)
         self.lstm = nn.LSTM(feature_size, self.hidden_size // self.num_directions, self.num_layers,
                             batch_first=True, dropout=dropout_ratio, bidirectional=bidirectional)
         self.drop = nn.Dropout(p=dropout_ratio)
         self.drop3 = nn.Dropout(p=args.featdropout)
         self.attention_layer = SoftDotAttention(self.hidden_size, feature_size)
 
-        self.post_lstm = nn.LSTM(self.hidden_size, self.hidden_size // self.num_directions, self.num_layers,
-                                 batch_first=True, dropout=dropout_ratio, bidirectional=bidirectional)
+
 
     def forward(self, action_embeds, feature, lengths, already_dropfeat=False, objMask=None, objFeat=None):
         """
@@ -678,11 +684,19 @@ class SpeakerEncoder(nn.Module):
         batch_size, max_length, _ = ctx.size()
         if not already_dropfeat:
             feature[..., :-args.angle_feat_size] = self.drop3(feature[..., :-args.angle_feat_size])   # Dropout the image feature
-            
+
         x, _ = self.attention_layer(                        # Attend to the feature map
             ctx.contiguous().view(-1, self.hidden_size),    # (batch, length, hidden) --> (batch x length, hidden)
-            feature.view(batch_size * max_length, -1, self.feature_size),        # (batch, length, # of images, feature_size) --> (batch x length, # of images, feature_size)
+            feature.view(batch_size * max_length, -1, self.feature_size)        # (batch, length, # of images, feature_size) --> (batch x length, # of images, feature_size)
         )
+        if objFeat is not None:
+            x2, _ = self.obj_attn(
+                ctx.contiguous().view(-1, self.hidden_size),
+                objFeat.view(batch_size*max_length, -1, objFeat.size(-1)),
+                objMask.view(batch_size*max_length,-1)
+            )
+            x = torch.cat((x,x2),dim=1)
+
         x = x.view(batch_size, max_length, -1)
         x = self.drop(x)
 

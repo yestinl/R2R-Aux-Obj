@@ -202,21 +202,23 @@ class Speaker():
             length += (1 - ended)
             ended[:] = np.logical_or(ended, (teacher_action == -1))
             obs = self.env._get_obs()
-        obj_mask = []
-        if obj_lens is not None:
-            for obj_l in obj_lens:
-                obj_mask.append(utils.traj_length2mask(obj_l, max_obj_len))
+        # if obj_lens is not None:
+        #     for obj_l in obj_lens:
+        #         obj_mask.append(utils.traj_length2mask(obj_l, max_obj_len))
         img_feats = torch.stack(img_feats, 1).contiguous()  # batch_size, max_len, 36, 2052
         can_feats = torch.stack(can_feats, 1).contiguous()  # batch_size, max_len, 2052
-        obj_pad_feats = torch.zeros((img_feats(0),img_feats(1),max_obj_len, obj_f.size(-1)))
-        # for i,obj_l in enumerate(obj_lens):
-            # obj_l[:,:,k,:] =
+        obj_pad_feats = torch.zeros((img_feats.size(0),img_feats.size(1),max_obj_len, obj_f.size(-1))).cuda()
+        obj_mask = torch.zeros((img_feats.size(0), img_feats.size(1), max_obj_len)).cuda()
+        if args.denseObj:
+            for i,obj_f in enumerate(obj_feats):
+                obj_pad_feats[:,i,:max(obj_lens[i]),:] = obj_f
+                obj_mask[:,i,:] = utils.traj_length2mask(obj_lens[i], max_obj_len)
         # obj_feats = torch.stack(obj_feats, 1).contiguous()
         # obj_lens = torch.stack()
         if get_first_feat:
             return (img_feats, can_feats, first_feat), length
         elif args.denseObj:
-            return (img_feats, can_feats, obj_lens,obj_feats),length
+            return (img_feats, can_feats, obj_mask,obj_pad_feats),length
         else:
             return (img_feats, can_feats), length
 
@@ -247,7 +249,7 @@ class Speaker():
             batch_size = len(obs)
             obj_lens = None
             if args.denseObj:
-                (img_feats, can_feats, obj_lens, obj_feats), lengths = self.from_shortest_path()
+                (img_feats, can_feats, obj_mask, obj_feats), lengths = self.from_shortest_path()
 
                 ctx = self.encoder(can_feats, img_feats, lengths, objMask=obj_mask, objFeat=obj_feats)
             else:

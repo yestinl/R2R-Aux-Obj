@@ -682,8 +682,8 @@ def length2mask(length, size=None):
     return mask
 
 def traj_length2mask(length, max_len, size=None):
-    batch_size = max_len
-    size = int(max(length)) if size is None else size
+    batch_size = len(length)
+    size = max_len
     mask = (torch.arange(size, dtype=torch.int64).unsqueeze(0).repeat(batch_size, 1)
             > (torch.LongTensor(length) - 1).unsqueeze(1)).cuda()
     return mask
