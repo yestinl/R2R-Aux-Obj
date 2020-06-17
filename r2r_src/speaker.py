@@ -250,7 +250,6 @@ class Speaker():
             obj_lens = None
             if args.denseObj:
                 (img_feats, can_feats, obj_mask, obj_feats), lengths = self.from_shortest_path()
-
                 ctx = self.encoder(can_feats, img_feats, lengths, objMask=obj_mask, objFeat=obj_feats)
             else:
                 (img_feats, can_feats), lengths = self.from_shortest_path()      # Image Feature (from the shortest path)
@@ -321,16 +320,24 @@ class Speaker():
         viewpoints_list = [list() for _ in range(batch_size)]
 
         # Get feature
-        (img_feats, can_feats), lengths = self.from_shortest_path(viewpoints=viewpoints_list)      # Image Feature (from the shortest path)
+        if args.denseObj:
+            (img_feats, can_feats, obj_mask, obj_feats), lengths = self.from_shortest_path()
+        else:
+            (img_feats, can_feats), lengths = self.from_shortest_path(viewpoints=viewpoints_list)      # Image Feature (from the shortest path)
 
         # This code block is only used for the featdrop.
         if featdropmask is not None:
             img_feats[..., :-args.angle_feat_size] *= featdropmask
             can_feats[..., :-args.angle_feat_size] *= featdropmask
+            if args.denseObj:
+                obj_feats *= featdropmask
 
         # Encoder
-        ctx = self.encoder(can_feats, img_feats, lengths,
-                           already_dropfeat=(featdropmask is not None))
+        if args.denseObj:
+            ctx = self.encoder(can_feats, img_feats, lengths, objMask=obj_mask, objFeat=obj_feats)
+        else:
+            ctx = self.encoder(can_feats, img_feats, lengths,
+                               already_dropfeat=(featdropmask is not None))
         ctx_mask = utils.length2mask(lengths)
 
         # Decoder

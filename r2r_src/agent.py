@@ -119,9 +119,10 @@ class Seq2SeqAgent(BaseAgent):
             speaker_model = get_sync_dir('lyx/snap/speaker/state_dict/best_val_unseen_bleu')
         else:
             speaker_model = os.path.join(args.R2R_Aux_path, 'snap/speaker/state_dict/best_val_unseen_bleu')
-        print('Use speaker model in %s' % (speaker_model))
-        states = torch.load(speaker_model)
-        self.speaker_decoder.load_state_dict(states["decoder"]["state_dict"])
+        if args.train != 'speaker':
+            print('Use speaker model in %s' % (speaker_model))
+            states = torch.load(speaker_model)
+            self.speaker_decoder.load_state_dict(states["decoder"]["state_dict"])
         self.progress_indicator = model.ProgressIndicator().cuda()
         self.matching_network = model.MatchingNetwork().cuda()
         if args.modmat:

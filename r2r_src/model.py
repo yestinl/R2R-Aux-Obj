@@ -651,7 +651,7 @@ class SpeakerEncoder(nn.Module):
             print("BIDIR in speaker encoder!!")
 
         if args.denseObj:
-            self.obj_attn = SoftDotAttention(self.hidden_size, args.feature_size)
+            self.obj_gate = Gate(self.hidden_size, args.feature_size)
             self.post_lstm = nn.LSTM(self.hidden_size*2, self.hidden_size // self.num_directions, self.num_layers,
                                  batch_first=True, dropout=dropout_ratio, bidirectional=bidirectional)
         else:
@@ -675,6 +675,8 @@ class SpeakerEncoder(nn.Module):
         x = action_embeds
         if not already_dropfeat:
             x[..., :-args.angle_feat_size] = self.drop3(x[..., :-args.angle_feat_size])            # Do not dropout the spatial features
+            if args.denseObj:
+                objFeat = self.drop3(objFeat)
 
         # LSTM on the action embed
         ctx, _ = self.lstm(x)
@@ -690,7 +692,7 @@ class SpeakerEncoder(nn.Module):
             feature.view(batch_size * max_length, -1, self.feature_size)        # (batch, length, # of images, feature_size) --> (batch x length, # of images, feature_size)
         )
         if objFeat is not None:
-            x2, _ = self.obj_attn(
+            x2, _ = self.obj_gate(
                 ctx.contiguous().view(-1, self.hidden_size),
                 objFeat.view(batch_size*max_length, -1, objFeat.size(-1)),
                 objMask.view(batch_size*max_length,-1)
@@ -713,6 +715,9 @@ class SpeakerDecoder(nn.Module):
         self.embedding = torch.nn.Embedding(vocab_size, embedding_size, padding_idx)
         self.lstm = nn.LSTM(embedding_size, hidden_size, batch_first=True)
         self.drop = nn.Dropout(dropout_ratio)
+        # if args.denseObj:
+        #     self.attention_layer = SoftDotAttention(hidden_size*2, hidden_size)
+        # else:
         self.attention_layer = SoftDotAttention(hidden_size, hidden_size)
         self.projection = nn.Linear(hidden_size, vocab_size)
         self.baseline_projection = nn.Sequential(
