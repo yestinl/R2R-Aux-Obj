@@ -84,11 +84,18 @@ class Param:
         self.parser.add_argument('--matWeight', type=float, default=0)
         self.parser.add_argument('--feaWeight', type=float, default=0)
         self.parser.add_argument('--angWeight', type=float, default=0)
+
         self.parser.add_argument('--test_train_num', type=int, default=3)
         self.parser.add_argument('--tt_lr', type=float, default=1e-4)
         self.parser.add_argument('--fix_aux_func', action="store_const", default=False, const=True)
         self.parser.add_argument("--modspe", action='store_const', default=False, const=True)
         self.parser.add_argument("--modmat", action='store_const', default=False, const=True)
+
+        # high feature
+        self.parser.add_argument('--HFWeight', type=float, default=0)
+        self.parser.add_argument('--high_feat_memory', action="store_const", default=False, const=True)
+        self.parser.add_argument('--high_feat_per_num', type=int, default=1)
+        self.parser.add_argument('--low_feat_memory', action="store_const", default=False, const=True)
 
         # obj
         self.parser.add_argument('--objdir', type=str, default='0_8')

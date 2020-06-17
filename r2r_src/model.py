@@ -318,13 +318,22 @@ class AttnDecoderLSTM(nn.Module):
                 self.sparse_input_layer = Gate(hidden_size, args.glove_emb + args.angle_bbox_size)
             elif args.objInputMode == 'sm':
                 self.sparse_input_layer = SoftDotAttention(hidden_size, args.glove_emb+args.angle_bbox_size)
-        self.attention_layer = SoftDotAttention(hidden_size, hidden_size)
+        # self.attention_layer = SoftDotAttention(hidden_size, hidden_size)
         self.candidate_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
+        # high feat
+        self.high_feat_layer = nn.Linear(hidden_size,hidden_size)
+        self.high_memory_att_layer = SoftDotAttention(hidden_size * 2, hidden_size, output_dim=hidden_size)
+        self.low_memory_att_layer = SoftDotAttention(hidden_size, hidden_size)
+        self.attention_layer = SoftDotAttention(hidden_size * 3, hidden_size, output_dim=hidden_size)
+        self.attention_layer1 = SoftDotAttention(hidden_size, hidden_size, output_dim=hidden_size)
+        # self.fc = nn.Linear(hidden_size*2, hidden_size)
+        # self.relu = nn.ReLU()
+
 
     def forward(self, action, cand_feat,
                 prev_h1, c_0,
                 ctx, ctx_mask=None,feature=None, sparseObj=None,denseObj=None,ObjFeature_mask=None,
-                already_dropfeat=False,multi=False):
+                already_dropfeat=False,multi=False, high_feats=None, low_feats=None):
         '''
         Takes a single step in the decoder LSTM (allowing sampling).
         action: batch x angle_feat_size
@@ -353,8 +362,7 @@ class AttnDecoderLSTM(nn.Module):
                     denseObj[..., -args.angle_feat_size] = self.drop_env(denseObj[..., -args.angle_feat_size])
             if feature is not None:
                 # Dropout the raw feature as a common regularization
-                feature[..., :-args.angle_feat_size] = self.drop_env(
-                    feature[..., :-args.angle_feat_size])  # Do not drop the last args.angle_feat_size (position feat)
+                feature[..., :-args.angle_feat_size] = self.drop_env(feature[..., :-args.angle_feat_size])  # Do not drop the last args.angle_feat_size (position feat)
 
         prev_h1_drop = self.drop(prev_h1)
 
@@ -393,26 +401,38 @@ class AttnDecoderLSTM(nn.Module):
         concat_input = torch.cat((action_embeds, attn_feat), 1) # (batch, embedding_size+feature_size)
         h_1, c_1 = self.lstm(concat_input, (prev_h1, c_0))
 
+        high_feat = self.high_feat_layer(h_1)
+        h_1_cat = torch.cat([h_1, high_feat], dim=1)
         h_1_drop = self.drop(h_1)
+        h_1_cat_drop = self.drop(h_1_cat)
 
-        if multi:
-            h_tilde = torch.zeros_like(h_1_drop).cuda()
-            for i in range(args.multiNum):
-                h_tilde_i, _ = self.attention_layer(h_1_drop, ctx[i], ctx_mask[i])
-                h_tilde += h_tilde_i
-            h_tilde /= args.multiNum
+        if not high_feats is None:
+            high_feat_attn, _ = self.high_memory_att_layer(h_1_cat_drop, high_feats, output_tilde=False)
+            high_feat_attn = self.drop(high_feat_attn)
+            concat_input = torch.cat((h_1_cat_drop, high_feat_attn), 1)
         else:
-            h_tilde, _ = self.attention_layer(h_1_drop, ctx, ctx_mask)
+            high_feat_drop = self.drop(high_feat)
+            concat_input = torch.cat((h_1_cat_drop, high_feat_drop), 1)
+        h_tilde, _ = self.attention_layer(concat_input, ctx, ctx_mask)
+        h_tilde1, _ = self.attention_layer1(h_1_drop, ctx, ctx_mask)
+        h_tilde1_drop = self.drop(h_tilde1)
+        # if multi:
+        #     h_tilde = torch.zeros_like(h_1_drop).cuda()
+        #     for i in range(args.multiNum):
+        #         h_tilde_i, _ = self.attention_layer(h_1_drop, ctx[i], ctx_mask[i])
+        #         h_tilde += h_tilde_i
+        #     h_tilde /= args.multiNum
+        # else:
+        #     h_tilde, _ = self.attention_layer(h_1_drop, ctx, ctx_mask)
 
         # Adding Dropout
         h_tilde_drop = self.drop(h_tilde)
 
         if not already_dropfeat:
             cand_feat[..., :-args.angle_feat_size] = self.drop_env(cand_feat[..., :-args.angle_feat_size])
-
         _, logit = self.candidate_att_layer(h_tilde_drop, cand_feat, output_prob=False)
 
-        return h_1, c_1, logit, h_tilde
+        return h_1, c_1, logit, h_tilde, high_feat, h_tilde_drop, h_tilde1_drop
 
 class AttnDecoderLSTM_LongCat(nn.Module):
     ''' An unrolled LSTM with attention over instructions for decoding navigation actions. '''
@@ -614,6 +634,22 @@ class ProgressIndicator(nn.Module):
         h = self.relu1(self.fc1(h))
         h = self.sigmoid(self.fc2(h))
         return h
+
+
+class HighFeatClassifier(nn.Module):
+    def __init__(self):
+        super(HighFeatClassifier, self).__init__()
+        hidden_size = args.rnn_dim
+        self.fc1 = nn.Linear(hidden_size * 2, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, 1)
+        self.relu1 = nn.LeakyReLU()
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, h):
+        h = self.relu1(self.fc1(h))
+        h = self.sigmoid(self.fc2(h))
+        return h
+
 
 class Critic(nn.Module):
     def __init__(self):

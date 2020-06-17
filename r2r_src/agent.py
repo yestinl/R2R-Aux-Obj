@@ -127,8 +127,9 @@ class Seq2SeqAgent(BaseAgent):
             self.matching_attention = model.SoftDotAttention(args.rnn_dim, args.rnn_dim).cuda()
         self.feature_predictor = model.FeaturePredictor().cuda()
         self.angle_predictor = model.AnglePredictor().cuda()
+        self.high_feat_classifier = model.HighFeatClassifier().cuda()
         self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_network,
-                           self.feature_predictor,self.angle_predictor)
+                           self.feature_predictor,self.angle_predictor, self.high_feat_classifier)
 
         # Optimizers
         self.encoder_optimizer = args.optimizer(self.encoder.parameters(), lr=args.lr)
@@ -140,7 +141,8 @@ class Seq2SeqAgent(BaseAgent):
             + list(self.progress_indicator.parameters())
             + list(self.matching_network.parameters())
             + list(self.feature_predictor.parameters())
-            + list(self.angle_predictor.parameters()), lr=args.lr)
+            + list(self.angle_predictor.parameters())
+            + list(self.high_feat_classifier.parameters()), lr=args.lr)
 
         self.all_tuple = [
             ("encoder", self.encoder, self.encoder_optimizer),
@@ -150,7 +152,8 @@ class Seq2SeqAgent(BaseAgent):
             ("progress_indicator", self.progress_indicator, self.aux_optimizer),
             ("matching_network", self.matching_network, self.aux_optimizer),
             ("feature_predictor", self.feature_predictor, self.aux_optimizer),
-            ("angle_predictor", self.feature_predictor, self.aux_optimizer)
+            ("angle_predictor", self.feature_predictor, self.aux_optimizer),
+            ("high_feat_classifier", self.high_feat_classifier, self.aux_optimizer)
         ]
 
         # Evaluations
@@ -502,16 +505,21 @@ class Seq2SeqAgent(BaseAgent):
         entropys = []
         ml_loss = 0.
 
+        high_ctx = [] # high level feature
+        low_ctx = [] # low level feature
         v_ctx = []  # ctx before language att
         vl_ctx = []  # ctx after language att
         h_0 = h_t
         fea_loss = 0
         ang_loss = 0
+        viewpoints = {}
+        candpoints = {}
         h1 = h_t
         h1_v = h_t
         h1_o = h_t
         c_t_v = c_t
         c_t_o = c_t
+        bs = len(perm_obs)
         for t in range(self.episode_len):
             ObjFeature_mask = None
             sparseObj = None
@@ -549,6 +557,18 @@ class Seq2SeqAgent(BaseAgent):
                     else:
                         denseObj[...,:-args.angle_feat_size] *= noise
 
+            if len(high_ctx) > 0:
+                assert len(low_ctx) == len(high_ctx)
+                high_feats = torch.stack(high_ctx[::args.high_feat_per_num], dim=1) #
+                low_feats = torch.stack(low_ctx, dim=1)
+            else:
+                high_feats = None
+                low_feats = None
+            if not args.high_feat_memory:
+                high_feats = None
+            if not args.low_feat_memory:
+                low_feats = None
+
             if args.longCat:
                 h_t_v,h_t_o, c_t_v, c_t_o, logit, h1_v, h1_o = self.decoder(
                     input_a_t, candidate_feat, h1_v, h1_o, c_t_v, c_t_o,
@@ -559,14 +579,26 @@ class Seq2SeqAgent(BaseAgent):
                 v_ctx.append(h_t_v)
                 hidden_states.append(h_t_v)
             else:
-                h_t, c_t, logit, h1 = self.decoder(input_a_t,candidate_feat,
+                h_t, c_t, logit, h1, high_feat, low_feat, h_loc = self.decoder(input_a_t,candidate_feat,
                                                    h1, c_t,
                                                    ctx, ctx_mask,feature=f_t,
                                                    sparseObj=sparseObj,denseObj=denseObj,
                                                    ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None),
-                                                   multi=multi)
+                                                   multi=multi,high_feats=high_feats, low_feats=low_feats)
                 v_ctx.append(h_t)
                 hidden_states.append(h_t)
+            assert bs == len(perm_obs)
+            for i in range(bs):
+                if i not in viewpoints:
+                    viewpoints[i] = []
+                viewpoints[i].append(perm_obs[i]["viewpoint"])
+                if i not in candpoints:
+                    candpoints[i] = []
+                candpoints[i].append([])
+                for _cand in perm_obs[i]["candidate"]:
+                    candpoints[i][t].append(_cand["viewpointId"])
+            high_ctx.append(high_feat.detach())
+            low_ctx.append(low_feat.detach())
             vl_ctx.append(h1)
 
 
@@ -719,8 +751,8 @@ class Seq2SeqAgent(BaseAgent):
                     ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None)
                 )
             else:
-                last_h_, _, _, _ = self.decoder(input_a_t,candidate_feat,
-                                               h1, c_t,
+                last_h_, _, _, _, _, _, _ = self.decoder(input_a_t,candidate_feat,
+                                              h1, c_t,
                                                ctx, ctx_mask,feature=f_t,
                                                sparseObj=sparseObj,denseObj=denseObj,
                                                ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None),multi=multi)
@@ -875,6 +907,33 @@ class Seq2SeqAgent(BaseAgent):
         ang_loss = ang_loss * args.angWeight
         self.loss += ang_loss
         self.logs['ang_loss'].append(ang_loss.detach())
+
+        # aux #6 high level constraint
+        high_loss = 0
+        assert len(high_ctx) == len(masks)
+        for i in range(len(high_ctx)):
+            for j in range(i + 1, len(high_ctx)):
+                high_ctx1 = high_ctx[i]
+                high_ctx2 = high_ctx[j]
+                if i == j:
+                    continue
+                else:
+                    high_cat = torch.cat([high_ctx1, high_ctx2], dim=1)
+                    pred = self.high_feat_classifier(high_cat)
+                    if abs(i - j) >= 3:
+                        label = torch.zeros(pred.shape).cuda()
+                    elif abs(i - j) <= 1:
+                        label = torch.ones(pred.shape).cuda()
+                    _loss = F.binary_cross_entropy(pred, label, reduce=False)
+                    _loss = _loss * torch.from_numpy(masks[i] * masks[j]).cuda()
+                    _loss = torch.mean(_loss)
+                    high_loss += _loss
+            # high_loss += F.mse_loss(high_ctx1, high_ctx2)
+        high_loss = high_loss * args.HFweight
+        self.loss += high_loss
+        if not (type(high_loss) == float):
+            high_loss = high_loss.item()
+        self.logs['HF_loss'].append(high_loss)
 
 
 
