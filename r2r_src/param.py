@@ -92,7 +92,7 @@ class Param:
 
         # obj
         self.parser.add_argument('--objdir', type=str, default='0_8')
-        self.parser.add_argument("--objthr", dest='objthr', type=float, default=0.99)
+        self.parser.add_argument("--objthr", dest='objthr', type=int, default=99)
         self.parser.add_argument("--angleObjSize", dest="angle_bbox_size", type=int, default=8)
         self.parser.add_argument("--gloveEmb", dest="glove_emb", type=int, default=300)
         self.parser.add_argument("--sparseObj", dest='sparseObj', action='store_const', default=False, const=True)

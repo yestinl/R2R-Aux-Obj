@@ -334,7 +334,7 @@ def read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_f
             viewpoint_object.append({'bbox':bb,'angles_h': angles_h, 'angles_e': angles_e,'features': features,
                                   'text': txt,'viewIndex': viewIndex,'prob': prob})
         if not flag and (th != 1):
-            viewpoint_object.append({'bbox':avg_b,'angles_h': angles_h, 'angles_e': angles_e, 'features': avg_feature,
+            viewpoint_object.append({'bbox':avg_b,'angles_h': avg_e, 'angles_e': avg_h, 'features': avg_feature,
                                   'text': 'average', 'viewIndex': None, 'prob': None})
             none_num +=1
         if th == 1:
@@ -375,7 +375,7 @@ def read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_f
     return objs
 
 def read_obj_sparse_features(sparse_obj_feat, th):
-    print("Start loading the object dense feature")
+    print("Start loading the object sparse feature")
     start = time.time()
     obj_s_feat = np.load(sparse_obj_feat, allow_pickle=True).item()
     viewpointIds = load_viewpointids()
@@ -679,6 +679,13 @@ def length2mask(length, size=None):
     size = int(max(length)) if size is None else size
     mask = (torch.arange(size, dtype=torch.int64).unsqueeze(0).repeat(batch_size, 1)
                 > (torch.LongTensor(length) - 1).unsqueeze(1)).cuda()
+    return mask
+
+def traj_length2mask(length, max_len, size=None):
+    batch_size = max_len
+    size = int(max(length)) if size is None else size
+    mask = (torch.arange(size, dtype=torch.int64).unsqueeze(0).repeat(batch_size, 1)
+            > (torch.LongTensor(length) - 1).unsqueeze(1)).cuda()
     return mask
 
 def average_length(path2inst):

@@ -659,7 +659,7 @@ class SpeakerEncoder(nn.Module):
         self.post_lstm = nn.LSTM(self.hidden_size, self.hidden_size // self.num_directions, self.num_layers,
                                  batch_first=True, dropout=dropout_ratio, bidirectional=bidirectional)
 
-    def forward(self, action_embeds, feature, lengths, already_dropfeat=False):
+    def forward(self, action_embeds, feature, lengths, already_dropfeat=False, objMask=None, objFeat=None):
         """
         :param action_embeds: (batch_size, length, 2052). The feature of the view
         :param feature: (batch_size, length, 36, 2052). The action taken (with the image feature)
@@ -678,6 +678,7 @@ class SpeakerEncoder(nn.Module):
         batch_size, max_length, _ = ctx.size()
         if not already_dropfeat:
             feature[..., :-args.angle_feat_size] = self.drop3(feature[..., :-args.angle_feat_size])   # Dropout the image feature
+            
         x, _ = self.attention_layer(                        # Attend to the feature map
             ctx.contiguous().view(-1, self.hidden_size),    # (batch, length, hidden) --> (batch x length, hidden)
             feature.view(batch_size * max_length, -1, self.feature_size),        # (batch, length, # of images, feature_size) --> (batch x length, # of images, feature_size)
@@ -707,7 +708,7 @@ class SpeakerDecoder(nn.Module):
             nn.Linear(128, 1)
         )
 
-    def forward(self, words, ctx, ctx_mask, h0, c0):
+    def forward(self, words, ctx, ctx_mask, h0, c0, objMask=None, objFeat=None):
         embeds = self.embedding(words)
         embeds = self.drop(embeds)
         x, (h1, c1) = self.lstm(embeds, (h0, c0))

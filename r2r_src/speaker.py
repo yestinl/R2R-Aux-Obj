@@ -173,6 +173,9 @@ class Speaker():
         length = np.zeros(len(obs), np.int64)
         img_feats = []
         can_feats = []
+        obj_feats = []
+        obj_lens = []
+        max_obj_len = 0
         first_feat = np.zeros((len(obs), self.feature_size+args.angle_feat_size), np.float32)
         for i, ob in enumerate(obs):
             first_feat[i, -args.angle_feat_size:] = utils.angle_feature(ob['heading'], ob['elevation'])
@@ -181,7 +184,14 @@ class Speaker():
             if viewpoints is not None:
                 for i, ob in enumerate(obs):
                     viewpoints[i].append(ob['viewpoint'])
-            img_feats.append(self.listener._feature_variable(obs))
+            if args.denseObj:
+                obj_f, obj_l, img_f = self.listener._feature_variable(obs)
+                max_obj_len = max(max_obj_len, max(obj_l))
+                img_feats.append(img_f)
+                obj_lens.append(obj_l)
+                obj_feats.append(obj_f)
+            else:
+                img_feats.append(self.listener._feature_variable(obs))
             teacher_action = self._teacher_action(obs, ended)
             teacher_action = teacher_action.cpu().numpy()
             for i, act in enumerate(teacher_action):
@@ -192,10 +202,21 @@ class Speaker():
             length += (1 - ended)
             ended[:] = np.logical_or(ended, (teacher_action == -1))
             obs = self.env._get_obs()
+        obj_mask = []
+        if obj_lens is not None:
+            for obj_l in obj_lens:
+                obj_mask.append(utils.traj_length2mask(obj_l, max_obj_len))
         img_feats = torch.stack(img_feats, 1).contiguous()  # batch_size, max_len, 36, 2052
         can_feats = torch.stack(can_feats, 1).contiguous()  # batch_size, max_len, 2052
+        obj_pad_feats = torch.zeros((img_feats(0),img_feats(1),max_obj_len, obj_f.size(-1)))
+        # for i,obj_l in enumerate(obj_lens):
+            # obj_l[:,:,k,:] =
+        # obj_feats = torch.stack(obj_feats, 1).contiguous()
+        # obj_lens = torch.stack()
         if get_first_feat:
             return (img_feats, can_feats, first_feat), length
+        elif args.denseObj:
+            return (img_feats, can_feats, obj_lens,obj_feats),length
         else:
             return (img_feats, can_feats), length
 
@@ -224,11 +245,22 @@ class Speaker():
         else:
             obs = self.env._get_obs()
             batch_size = len(obs)
-            (img_feats, can_feats), lengths = self.from_shortest_path()      # Image Feature (from the shortest path)
-            ctx = self.encoder(can_feats, img_feats, lengths)
+            obj_lens = None
+            if args.denseObj:
+                (img_feats, can_feats, obj_lens, obj_feats), lengths = self.from_shortest_path()
+
+                ctx = self.encoder(can_feats, img_feats, lengths, objMask=obj_mask, objFeat=obj_feats)
+            else:
+                (img_feats, can_feats), lengths = self.from_shortest_path()      # Image Feature (from the shortest path)
+                ctx = self.encoder(can_feats, img_feats, lengths)
+
+
         h_t = torch.zeros(1, batch_size, args.rnn_dim).cuda()
         c_t = torch.zeros(1, batch_size, args.rnn_dim).cuda()
         ctx_mask = utils.length2mask(lengths)
+
+
+
 
         # Get Language Input
         if insts is None:

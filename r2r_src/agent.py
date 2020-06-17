@@ -303,7 +303,7 @@ class Seq2SeqAgent(BaseAgent):
                 features[i, :, :] = ob['feature']   # Image feat
             return Variable(torch.from_numpy(features), requires_grad=False).cuda()
 
-    def _candidate_variable(self, obs):
+    def _candidate_variable(self, obs, outputObj=False):
         candidate_leng = [len(ob['candidate']) + 1 for ob in obs]       # +1 is for the end
         candidate_feat = np.zeros((len(obs), max(candidate_leng), self.feature_size + args.angle_feat_size), dtype=np.float32)
         # Note: The candidate_feat at len(ob['candidate']) is the feature for the END
