@@ -929,7 +929,7 @@ class Seq2SeqAgent(BaseAgent):
                     _loss = torch.mean(_loss)
                     high_loss += _loss
             # high_loss += F.mse_loss(high_ctx1, high_ctx2)
-        high_loss = high_loss * args.HFweight
+        high_loss = high_loss * args.HFWeight
         self.loss += high_loss
         if not (type(high_loss) == float):
             high_loss = high_loss.item()

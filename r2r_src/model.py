@@ -87,12 +87,15 @@ class SoftDotAttention(nn.Module):
     Adapted from PyTorch OPEN NMT.
     '''
 
-    def __init__(self, query_dim, ctx_dim):
+    def __init__(self, query_dim, ctx_dim, output_dim=None):
         '''Initialize layer.'''
         super(SoftDotAttention, self).__init__()
         self.linear_in = nn.Linear(query_dim, ctx_dim, bias=False)
         self.sm = nn.Softmax()
-        self.linear_out = nn.Linear(query_dim + ctx_dim, query_dim, bias=False)
+        if output_dim is None:
+            self.linear_out = nn.Linear(query_dim + ctx_dim, query_dim, bias=False)
+        else:
+            self.linear_out = nn.Linear(query_dim + ctx_dim, output_dim, bias=False)
         self.tanh = nn.Tanh()
 
     def forward(self, h, context, mask=None,
