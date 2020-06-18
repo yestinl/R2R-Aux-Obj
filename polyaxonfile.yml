@@ -14,4 +14,4 @@ environment:
         experiments: [10647]
 
 run:
-    cmd: python3.6  r2r_src/train.py --submit --upload --HFWeight 1 --name R2R_Env_HF_0
+    cmd: python3.6 r2r_src/train.py --submit --upload  --feaWeight 1 --angWeight 2 --name R2R_Env_FeaAng
