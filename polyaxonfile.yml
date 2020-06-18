@@ -15,4 +15,4 @@ environment:
 
 
 run:
-    cmd: python3.6 r2r_src/train.py --submit --upload --denseObj --catRN --objthr 1 --objInputMode sg --name Envdrop_denseObj_RN_100_0
+    cmd: python3.6 r2r_src/train.py --submit --upload  --feaWeight 1 --angWeight 2 --name R2R_Env_FeaAng

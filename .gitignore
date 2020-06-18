@@ -19,3 +19,6 @@ MatterSim.cpython-36m-x86_64-linux-gnu.so
 snap_history
 src
 .bash_history
+.idea
+polyaxonfile.yml
+script.doc
