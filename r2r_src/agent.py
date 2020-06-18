@@ -116,7 +116,7 @@ class Seq2SeqAgent(BaseAgent):
             self.speaker_decoder = model.SpeakerDecoder(self.tok.vocab_size(), args.wemb, self.tok.word_to_index['<PAD>'],
                                                         args.rnn_dim, args.dropout).cuda()
         if args.upload:
-            speaker_model = get_sync_dir('lyx/snap/speaker/state_dict/best_val_unseen_bleu')
+            speaker_model = get_sync_dir('lyx/snap/obj_speaker/state_dict/best_val_unseen_bleu')
         else:
             speaker_model = os.path.join(args.R2R_Aux_path, 'snap/speaker/state_dict/best_val_unseen_bleu')
         if args.train != 'speaker':
@@ -129,7 +129,8 @@ class Seq2SeqAgent(BaseAgent):
             self.matching_attention = model.SoftDotAttention(args.rnn_dim, args.rnn_dim).cuda()
         self.feature_predictor = model.FeaturePredictor().cuda()
         self.angle_predictor = model.AnglePredictor().cuda()
-        self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_network)
+        self.aux_models = (self.speaker_decoder, self.progress_indicator, self.matching_network,
+                           self.angle_predictor, self.feature_predictor)
 
         # Optimizers
         self.encoder_optimizer = args.optimizer(self.encoder.parameters(), lr=args.lr)
