@@ -909,31 +909,32 @@ class Seq2SeqAgent(BaseAgent):
         self.logs['ang_loss'].append(ang_loss.detach())
 
         # aux #6 high level constraint
-        high_loss = 0
-        assert len(high_ctx) == len(masks)
-        for i in range(len(high_ctx)):
-            for j in range(i + 1, len(high_ctx)):
-                high_ctx1 = high_ctx[i]
-                high_ctx2 = high_ctx[j]
-                if i == j:
-                    continue
-                else:
-                    high_cat = torch.cat([high_ctx1, high_ctx2], dim=1)
-                    pred = self.high_feat_classifier(high_cat)
-                    if abs(i - j) >= 3:
-                        label = torch.zeros(pred.shape).cuda()
-                    elif abs(i - j) <= 1:
-                        label = torch.ones(pred.shape).cuda()
-                    _loss = F.binary_cross_entropy(pred, label, reduce=False)
-                    _loss = _loss * torch.from_numpy(masks[i] * masks[j]).cuda()
-                    _loss = torch.mean(_loss)
-                    high_loss += _loss
-            # high_loss += F.mse_loss(high_ctx1, high_ctx2)
-        high_loss = high_loss * args.HFWeight
-        self.loss += high_loss
-        if not (type(high_loss) == float):
-            high_loss = high_loss.item()
-        self.logs['HF_loss'].append(high_loss)
+        if abs(args.matWeight - 0) > eps:
+            high_loss = 0
+            assert len(high_ctx) == len(masks)
+            for i in range(len(high_ctx)):
+                for j in range(i + 1, len(high_ctx)):
+                    high_ctx1 = high_ctx[i]
+                    high_ctx2 = high_ctx[j]
+                    if i == j:
+                        continue
+                    else:
+                        high_cat = torch.cat([high_ctx1, high_ctx2], dim=1)
+                        pred = self.high_feat_classifier(high_cat)
+                        if abs(i - j) >= 3:
+                            label = torch.zeros(pred.shape).cuda()
+                        elif abs(i - j) <= 1:
+                            label = torch.ones(pred.shape).cuda()
+                        _loss = F.binary_cross_entropy(pred, label, reduce=False)
+                        _loss = _loss * torch.from_numpy(masks[i] * masks[j]).cuda()
+                        _loss = torch.mean(_loss)
+                        high_loss += _loss
+                # high_loss += F.mse_loss(high_ctx1, high_ctx2)
+            high_loss = high_loss * args.HFWeight
+            self.loss += high_loss
+            if not (type(high_loss) == float):
+                high_loss = high_loss.item()
+            self.logs['HF_loss'].append(high_loss)
 
 
 

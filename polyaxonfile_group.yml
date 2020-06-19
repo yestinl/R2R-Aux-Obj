@@ -1,0 +1,23 @@
+version: 1
+kind: group
+build:
+    image: docker.dm-ai.cn/algorithm-research/matteraux:latest
+environment:
+    resources:
+        cpu:
+            requests: 1
+            limits: 2
+        gpu:
+            requests: 1
+            limits: 1
+    outputs:
+        experiments: [10647]
+
+hptuning:
+    concurrency: 9
+    matrix:
+        weight:
+            values: [0.01,0.03,0.05,0.07,0.1,0.3,0.5,0.7,1]
+
+run:
+    cmd: python3.6 r2r_src/train.py --submit --upload  --HFWeight={{weight}} --name R2R_Env_HF_1_{{weight*100}}
