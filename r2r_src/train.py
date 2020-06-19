@@ -215,6 +215,7 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
         mat_loss = sum(listner.logs['mat_loss']) / total
         fea_loss = sum(listner.logs['fea_loss']) / total
         ang_loss = sum(listner.logs['ang_loss']) / total
+        HF_loss = sum(listner.logs['HF_loss'])/total
         # entropy = sum(listner.logs['entropy']) / total #/ length / args.batchSize
         # predict_loss = sum(listner.logs['us_loss']) / max(len(listner.logs['us_loss']), 1)
         writer.add_scalar("loss/ml_loss", ml_loss, idx)
@@ -225,6 +226,7 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
         writer.add_scalar("loss/mat_loss", mat_loss, idx)
         writer.add_scalar("loss/fea_loss", fea_loss, idx)
         writer.add_scalar("loss/ang_loss", ang_loss, idx)
+        writer.add_scalar("loss/HF_loss", HF_loss, idx)
         # writer.add_scalar("policy_entropy", entropy, idx)
         # writer.add_scalar("loss/unsupervised", predict_loss, idx)
         writer.add_scalar("total_actions", total, idx)
@@ -270,6 +272,7 @@ def train(train_env, tok, n_iters, log_every=100, val_envs={}, aug_env=None):
         loss_str += ', mat_weight: %.1f' % (args.matWeight)
         loss_str += ', ang_weight: %.1f' % (args.angWeight)
         loss_str += ', fea_weight: %.1f' % (args.feaWeight)
+        loss_str += ', HF_weight: %.2f'%(args.HFWeight)
         loss_str += '\n'
 
         for env_name in best_val:
