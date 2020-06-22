@@ -909,7 +909,7 @@ class Seq2SeqAgent(BaseAgent):
         self.logs['ang_loss'].append(ang_loss.detach())
 
         # aux #6 high level constraint
-        if abs(args.matWeight - 0) > eps:
+        if abs(args.HFWeight - 0) > eps:
             high_loss = 0
             assert len(high_ctx) == len(masks)
             for i in range(len(high_ctx)):
