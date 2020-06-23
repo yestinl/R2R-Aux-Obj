@@ -15,4 +15,4 @@ environment:
 
 
 run:
-    cmd: python3.6 r2r_src/train.py --submit --upload  --feaWeight 1 --angWeight 2 --name R2R_Env_FeaAng
+    cmd: python3.6 r2r_src/train.py --submit --upload --name Envdrop_valid_1

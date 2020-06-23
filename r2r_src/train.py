@@ -475,11 +475,11 @@ def train_val():
     # load object feature
     obj_s_feat = None
     if args.sparseObj:
-        obj_s_feat = utils.read_obj_sparse_features(sparse_obj_feat, float(args.objthr/100))
+        obj_s_feat = utils.read_obj_sparse_features(sparse_obj_feat, args.objthr)
 
     obj_d_feat = None
     if args.denseObj:
-        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_feat, float(args.objthr/100))
+        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_feat, args.objthr)
 
     featurized_scans = set([key.split("_")[0] for key in list(feat_dict.keys())])
 
@@ -601,7 +601,7 @@ def train_val_augment():
 
     obj_d_feat = None
     if args.denseObj:
-        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, float(args.objthr/100))
+        obj_d_feat = utils.read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, args.objthr)
 
     # Load the augmentation data
     if args.upload:
