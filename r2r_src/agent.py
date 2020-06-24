@@ -932,9 +932,9 @@ class Seq2SeqAgent(BaseAgent):
                 # high_loss += F.mse_loss(high_ctx1, high_ctx2)
             high_loss = high_loss * args.HFWeight
             self.loss += high_loss
-            if not (type(high_loss) == float):
-                high_loss = high_loss.item()
-            self.logs['HF_loss'].append(high_loss)
+            self.logs['HF_loss'].append(high_loss.detach())
+        else:
+            self.logs['HF_loss'].append(0)
 
 
 
