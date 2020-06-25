@@ -597,7 +597,7 @@ class Seq2SeqAgent(BaseAgent):
                 candpoints[i].append([])
                 for _cand in perm_obs[i]["candidate"]:
                     candpoints[i][t].append(_cand["viewpointId"])
-            high_ctx.append(high_feat.detach())
+            high_ctx.append(high_feat)
             low_ctx.append(low_feat.detach())
             vl_ctx.append(h1)
 
@@ -932,7 +932,7 @@ class Seq2SeqAgent(BaseAgent):
                 # high_loss += F.mse_loss(high_ctx1, high_ctx2)
             high_loss = high_loss * args.HFWeight
             self.loss += high_loss
-            self.logs['HF_loss'].append(high_loss.detach())
+            self.logs['HF_loss'].append(high_loss)
         else:
             self.logs['HF_loss'].append(0)
 

@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c9fad949-7e44-4d72-a043-557aea80f43a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/r2r_src/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2r_src/agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/script.doc" beforeDir="false" afterPath="$PROJECT_DIR$/script.doc" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -15,8 +16,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/r2r_src/agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="135" column="12" selection-start-line="135" selection-start-column="8" selection-end-line="135" selection-end-column="12" />
+            <state relative-caret-position="152">
+              <caret line="934" column="49" selection-start-line="934" selection-start-column="49" selection-end-line="934" selection-end-column="49" />
               <folding>
                 <element signature="e#1#12#0" expanded="true" />
                 <element signature="e#438#2335#0" />
@@ -27,51 +28,17 @@
                 <element signature="e#18947#19799#0" />
                 <element signature="e#19896#21987#0" />
                 <element signature="e#25087#25267#0" />
-                <element signature="e#35936#40739#0" />
+                <element signature="e#26554#35901#0" />
+                <element signature="e#40786#40918#0" />
+                <element signature="e#41595#43098#0" />
                 <element signature="e#43249#43566#0" />
                 <element signature="e#43713#45110#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/r2r_src/param.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2277">
-              <caret line="99" column="13" selection-start-line="99" selection-start-column="13" selection-end-line="99" selection-end-column="13" />
-              <folding>
-                <element signature="e#0#15#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/r2r_src/model.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-815">
-              <caret line="350" selection-start-line="350" selection-end-line="350" />
-              <folding>
-                <element signature="e#236#3272#0" />
-                <element signature="e#3314#5060#0" />
-                <element signature="e#5107#7768#0" />
-                <element signature="e#7797#9498#0" />
-                <element signature="e#19953#27743#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/r2r_src/utils.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="12190">
-              <caret line="751" column="62" selection-start-line="751" selection-start-column="62" selection-end-line="751" selection-end-column="62" />
-              <folding>
-                <element signature="e#533#1713#0" />
-                <element signature="e#3255#6990#0" />
-                <element signature="e#9195#13598#0" />
+                <element signature="e#47126#57838#0" />
+                <element signature="e#57884#60615#0" />
+                <element signature="e#60666#61073#0" />
+                <element signature="e#61172#61550#0" />
+                <element signature="e#61930#62364#0" />
+                <element signature="e#62400#62747#0" />
               </folding>
             </state>
           </provider>
@@ -82,6 +49,30 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="368">
               <caret line="16" column="104" selection-start-line="16" selection-start-column="104" selection-end-line="16" selection-end-column="104" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/r2r_src/model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="887">
+              <caret line="437" column="46" lean-forward="true" selection-start-line="437" selection-start-column="46" selection-end-line="437" selection-end-column="46" />
+              <folding>
+                <element signature="e#236#3272#0" />
+                <element signature="e#3314#5060#0" />
+                <element signature="e#5107#7768#0" />
+                <element signature="e#7797#9498#0" />
+                <element signature="e#9833#10127#0" />
+                <element signature="e#10193#11080#0" />
+                <element signature="e#11142#11499#0" />
+                <element signature="e#11526#11624#0" />
+                <element signature="e#12363#13470#0" />
+                <element signature="e#13510#13882#0" />
+                <element signature="e#15522#16364#0" />
+                <element signature="e#19953#27743#0" />
+                <element signature="e#27784#28241#0" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -110,7 +101,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/module.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="823">
+            <state relative-caret-position="12397">
               <caret line="546" selection-start-line="546" selection-end-line="546" />
             </state>
           </provider>
@@ -120,13 +111,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>self.decoder</find>
-      <find>catAngleBbox:</find>
-      <find>.json</find>
-      <find>cat</find>
-      <find>catAngleBbox</find>
-      <find>catfeat</find>
-      <find>gate</find>
       <find>train</find>
       <find>value</find>
       <find>perm_obs</find>
@@ -150,6 +134,13 @@
       <find>CrossEntropyLoss</find>
       <find>softmax_loss</find>
       <find>self.aux_models</find>
+      <find>self.aux_optimizer</find>
+      <find>high_ctx</find>
+      <find>low_feat</find>
+      <find>high_feat</find>
+      <find>high</find>
+      <find>ml_loss</find>
+      <find>detach</find>
     </findStrings>
     <replaceStrings>
       <replace>candidate_feat</replace>
@@ -183,10 +174,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
-    <option name="y" value="-1088" />
-    <option name="width" value="1936" />
-    <option name="height" value="1056" />
+    <option name="x" value="244" />
+    <option name="y" value="-895" />
+    <option name="width" value="1534" />
+    <option name="height" value="822" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -244,7 +235,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.train_0.03">
+  <component name="RunManager" selected="Python.train_0.3">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="R2R-Env-Aux" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -349,44 +340,45 @@
       <workItem from="1592847120211" duration="1940000" />
       <workItem from="1592958944551" duration="4262000" />
       <workItem from="1593014038805" duration="3164000" />
+      <workItem from="1593075523898" duration="4008000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="342228000" />
+    <option name="totallyTimeSpent" value="346236000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-1088" width="1936" height="1056" extended-state="7" />
+    <frame x="-8" y="-1088" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49780703" weight="0.1689008" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49780703" visible="true" weight="0.21428572" />
       <window_info id="Structure" order="1" sideWeight="0.502193" side_tool="true" weight="0.21313673" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info active="true" x="0" y="-2" width="1536" height="824" id="Debug" order="3" sideWeight="0.49932975" type="FLOATING" visible="true" weight="0.5609065" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.6617284" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.31586403" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.4229651" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="5" />
       <window_info anchor="bottom" id="Docker" order="6" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="File Transfer" order="8" weight="0.31586403" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.329718" />
+      <window_info anchor="bottom" id="File Transfer" order="8" weight="0.31561822" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="SOQL Query" order="10" />
       <window_info anchor="bottom" id="Log Analyzer" order="11" />
       <window_info anchor="bottom" id="Terminal" order="12" />
       <window_info anchor="bottom" id="Event Log" order="13" sideWeight="0.50067025" side_tool="true" weight="0.47241867" />
-      <window_info anchor="bottom" id="Anonymous Apex" order="14" />
-      <window_info anchor="bottom" id="Python Console" order="15" weight="0.32893288" />
+      <window_info anchor="bottom" id="Anonymous Apex" order="14" weight="0.329718" />
+      <window_info anchor="bottom" id="Python Console" order="15" weight="0.3286334" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="16" weight="0.32956153" />
+      <window_info active="true" anchor="bottom" x="929" y="-570" width="61" height="19" id="Debug" order="17" sideWeight="0.49932975" visible="true" weight="0.4175705" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Remote Host" order="3" sideWeight="0.489154" visible="true" weight="0.015991472" />
+      <window_info anchor="right" id="Remote Host" order="3" sideWeight="0.48789573" visible="true" weight="0.015991472" />
       <window_info anchor="right" id="SciView" order="4" sideWeight="0.8500707" weight="0.25603217" />
       <window_info anchor="right" id="Database" order="5" />
-      <window_info anchor="right" x="0" y="0" width="193" height="842" id="Documentation" order="6" sideWeight="0.51084596" side_tool="true" visible="true" weight="0.015991472" />
+      <window_info anchor="right" x="0" y="0" width="193" height="842" id="Documentation" order="6" sideWeight="0.5121043" side_tool="true" visible="true" weight="0.015991472" />
     </layout>
     <layout-to-restore>
       <window_info id="Favorites" order="0" side_tool="true" />
@@ -459,57 +451,50 @@
           <option name="timeStamp" value="228" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/r2r_src/agent.py</url>
-          <line>945</line>
-          <option name="timeStamp" value="340" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/r2r_src/model.py</url>
           <line>509</line>
           <option name="timeStamp" value="344" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/r2r_src/agent.py</url>
-          <line>932</line>
-          <option name="timeStamp" value="348" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/r2r_src/agent.py</url>
-          <line>1315</line>
-          <option name="timeStamp" value="349" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/r2r_src/agent.py</url>
-          <line>420</line>
-          <option name="timeStamp" value="350" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="h_1.size()" language="Python" />
-        <watch expression="self.high_feat_layer(h_1).size()" language="Python" />
-        <watch expression="high_loss" language="Python" />
-        <watch expression="high_loss.detach()" language="Python" />
-        <watch expression="ml_loss" language="Python" />
-        <watch expression="self.loss" language="Python" />
-        <watch expression="torch.sum(ctx)" language="Python" />
-        <watch expression="action_embeds" language="Python" />
-        <watch expression="feature" language="Python" />
-        <watch expression="RN_attn_feat" language="Python" />
-        <watch expression="high_feat" language="Python" />
-        <watch expression="target" language="Python" />
-        <watch expression="rl_loss" language="Python" />
-      </configuration>
-    </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/R2R_Env_Aux$train_0_03.coverage" NAME="train_0.03 Coverage Results" MODIFIED="1593014136150" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/R2R_Env_Aux$train_0_3.coverage" NAME="train_0.3 Coverage Results" MODIFIED="1593014132561" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/R2R_Env_Aux$train_0_03.coverage" NAME="train_0.03 Coverage Results" MODIFIED="1593075786763" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/R2R_Env_Aux$train_0_3.coverage" NAME="train_0.3 Coverage Results" MODIFIED="1593077962095" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/R2R_Env_Aux$train.coverage" NAME="train Coverage Results" MODIFIED="1592965492851" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">
+      <expression>
+        <expression-string>high_ctx</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>high_ctx.shape</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>high_ctx.size</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>high_ctx.size()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>self.loss</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>args.fix_aux_func</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>rl_loss</expression-string>
         <language-id>Python</language-id>
@@ -527,31 +512,6 @@
       </expression>
       <expression>
         <expression-string>target</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>high_feat</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>high_loss</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>RN_attn_feat</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>feature</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>action_embeds</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -684,7 +644,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/param.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2277">
+        <state relative-caret-position="2231">
           <caret line="99" column="13" selection-start-line="99" selection-start-column="13" selection-end-line="99" selection-end-column="13" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
@@ -711,13 +671,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/polyaxonfile_group.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="17" column="11" selection-start-line="17" selection-start-column="11" selection-end-line="17" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/train.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6302">
@@ -728,31 +681,46 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/module.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="12397">
+          <caret line="546" selection-start-line="546" selection-end-line="546" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-815">
-          <caret line="350" selection-start-line="350" selection-end-line="350" />
+        <state relative-caret-position="887">
+          <caret line="437" column="46" lean-forward="true" selection-start-line="437" selection-start-column="46" selection-end-line="437" selection-end-column="46" />
           <folding>
             <element signature="e#236#3272#0" />
             <element signature="e#3314#5060#0" />
             <element signature="e#5107#7768#0" />
             <element signature="e#7797#9498#0" />
+            <element signature="e#9833#10127#0" />
+            <element signature="e#10193#11080#0" />
+            <element signature="e#11142#11499#0" />
+            <element signature="e#11526#11624#0" />
+            <element signature="e#12363#13470#0" />
+            <element signature="e#13510#13882#0" />
+            <element signature="e#15522#16364#0" />
             <element signature="e#19953#27743#0" />
+            <element signature="e#27784#28241#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2019.1/system/remote_sources/1242491314/1501578427/torch/nn/modules/module.py">
+    <entry file="file://$PROJECT_DIR$/polyaxonfile_group.yml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="823">
-          <caret line="546" selection-start-line="546" selection-end-line="546" />
+        <state relative-caret-position="391">
+          <caret line="17" column="11" selection-start-line="17" selection-start-column="11" selection-end-line="17" selection-end-column="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/r2r_src/agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="135" column="12" selection-start-line="135" selection-start-column="8" selection-end-line="135" selection-end-column="12" />
+        <state relative-caret-position="152">
+          <caret line="934" column="49" selection-start-line="934" selection-start-column="49" selection-end-line="934" selection-end-column="49" />
           <folding>
             <element signature="e#1#12#0" expanded="true" />
             <element signature="e#438#2335#0" />
@@ -763,9 +731,17 @@
             <element signature="e#18947#19799#0" />
             <element signature="e#19896#21987#0" />
             <element signature="e#25087#25267#0" />
-            <element signature="e#35936#40739#0" />
+            <element signature="e#26554#35901#0" />
+            <element signature="e#40786#40918#0" />
+            <element signature="e#41595#43098#0" />
             <element signature="e#43249#43566#0" />
             <element signature="e#43713#45110#0" />
+            <element signature="e#47126#57838#0" />
+            <element signature="e#57884#60615#0" />
+            <element signature="e#60666#61073#0" />
+            <element signature="e#61172#61550#0" />
+            <element signature="e#61930#62364#0" />
+            <element signature="e#62400#62747#0" />
           </folding>
         </state>
       </provider>
