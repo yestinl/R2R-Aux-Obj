@@ -554,7 +554,7 @@ class Seq2SeqAgent(BaseAgent):
             if args.longCat:
                 h_t_v,h_t_o, c_t_v, c_t_o, logit, h1_v, h1_o = self.decoder(
                     input_a_t, candidate_feat, h1_v, h1_o, c_t_v, c_t_o,
-                    ctx, ctx_mask,feature=f_t,
+                    ctx, ctx_mask=ctx_mask,feature=f_t,
                     sparseObj=sparseObj,denseObj=denseObj,
                     ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None)
                 )
@@ -716,7 +716,7 @@ class Seq2SeqAgent(BaseAgent):
             if args.longCat:
                 last_h_, _, _, _, _, _, _ = self.decoder(
                     input_a_t, candidate_feat, h1_v, h1_o, c_t_v, c_t_o,
-                    ctx, ctx_mask,feature=f_t,
+                    ctx, ctx_mask=ctx_mask,feature=f_t,
                     sparseObj=sparseObj,denseObj=denseObj,
                     ObjFeature_mask=ObjFeature_mask,already_dropfeat=(speaker is not None)
                 )
