@@ -456,6 +456,7 @@ class AttnDecoderLSTM_LongCat(nn.Module):
         self.attention_layer_v = SoftDotAttention(hidden_size, hidden_size)
         self.attention_layer_o = SoftDotAttention(hidden_size, hidden_size)
         self.candidate_att_layer = SoftDotAttention(hidden_size*2, args.feature_size+args.angle_feat_size)
+        # self.candidate_att_layer = MultiHeadSelfAttention(args.headNum, hidden_size*2, args.feature_size+args.angle_feat_size)
 
     def forward(self, action, cand_feat,
                 prev_h1_v,prev_h1_o, c_0_v, c_0_o,
@@ -510,8 +511,8 @@ class AttnDecoderLSTM_LongCat(nn.Module):
         h_tilde_v, _= self.attention_layer_v(h_1_drop_v, ctx, ctx_mask)
         # h_tilde_v_drop = self.drop(h_tilde_v)
 
-        concat_input_o = torch.cat((action_embeds, dense_attn_feat), 1)
-        h_1_o, c_1_o = self.lstm_o(concat_input_o, (prev_h1_o, c_0_o))
+        # concat_input_o = torch.cat((action_embeds, dense_attn_feat), 1)
+        h_1_o, c_1_o = self.lstm_o(dense_attn_feat, (prev_h1_o, c_0_o))
         h_1_o_drop = self.drop(h_1_o)
         h_tilde_o, _ = self.attention_layer_o(h_1_o_drop, ctx, ctx_mask)
         # h_tilde_o_drop = self.drop(h_tilde_o)

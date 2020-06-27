@@ -15,4 +15,4 @@ environment:
 
 
 run:
-    cmd: python3.6 r2r_src/train.py --submit --denseObj --catRN --objthr 0.99 --objInputMode sg --longCat --name Envdrop_LongCat
+    cmd: python3.6 r2r_src/train.py --submit --denseObj --catRN --objthr 0.99 --objInputMode sg --longCat --upload --headNum 2 --name Envdrop_LongCat_MultiHead
