@@ -448,7 +448,7 @@ class AttnDecoderLSTM_LongCat(nn.Module):
         self.drop = nn.Dropout(p=dropout_ratio)
         self.drop_env = nn.Dropout(p=args.featdropout)
         self.lstm_v = nn.LSTMCell(embedding_size+feature_size, hidden_size)
-        self.lstm_o = nn.LSTMCell(embedding_size+args.feature_size, hidden_size)
+        self.lstm_o = nn.LSTMCell(embedding_size, hidden_size)
         self.feat_att_layer = SoftDotAttention(hidden_size, args.feature_size+args.angle_feat_size)
         if args.denseObj:
             self.dense_att_layer = Gate(hidden_size, args.feature_size)
