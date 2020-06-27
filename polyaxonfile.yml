@@ -15,4 +15,4 @@ environment:
 
 
 run:
-    cmd: python3.6 r2r_src/train.py --submit --denseObj --catRN --objthr 0.99 --objInputMode sg --longCat --upload --angWeight 2 --name Envdrop_LongCat_noAct_Ang
+    cmd: python3.6 r2r_src/train.py --submit --denseObj --catRN --objthr 0.99 --objInputMode sg --longCat --upload --speWeight 1 --name Envdrop_LongCat_noAct_Spe
