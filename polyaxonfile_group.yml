@@ -3,10 +3,12 @@ kind: group
 build:
     image: docker.dm-ai.cn/algorithm-research/matteraux:latest
 hptuning:
-    concurrency: 6
+    concurrency: 8
     matrix:
-        thr:
-            values: [80,85,90,95,99,100]
+        aux:
+            values: [spe]
+        weight:
+            values: [0,0.0001,0.001,0.01,0.1,1,2,10]
 environment:
     resources:
         cpu:
@@ -20,4 +22,4 @@ environment:
 
 
 run:
-    cmd: python3.6 r2r_src/train.py --submit --upload --denseObj --catRN --objthr={{thr}} --objInputMode sg --catfeat he --name Envdrop_denseObj_RN_{{thr}}_catHE
+    cmd: python3.6 r2r_src/train.py --submit --upload --denseObj --catRN --objthr 0.99 --objInputMode sg --{{aux}}Weight {{weight}} --name Envdrop_denseObj_RN_99_{{aux}}_{{weight}}
