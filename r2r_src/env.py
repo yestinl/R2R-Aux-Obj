@@ -418,14 +418,16 @@ class R2RBatch():
                         obs_dict['obj_d_feature'] = np.concatenate(
                             (odf['concat_feature'], np.zeros((1, args.angle_feat_size))), axis=1)
                     elif odf['concat_text'][0] == 'average':
-                        he = np.tile(np.concatenate((odf['concat_angles_h'],odf['concat_angles_e']),axis=1),args.angle_feat_size//8)
+                        # he = np.tile(np.concatenate((odf['concat_angles_h'],odf['concat_angles_e']),axis=1),args.angle_feat_size//8)
+                        he = odf['concat_angles']
                         obs_dict['obj_d_feature'] = np.concatenate(
                             (odf['concat_feature'],he),1)
                     else:
                         obs_dict['obj_d_feature'] = np.zeros((len(odf['concat_feature']),args.angle_feat_size+args.feature_size))
                         for k,v in enumerate(odf['concat_viewIndex']):
-                            he = np.tile(np.concatenate((odf['concat_angles_h'][k], odf['concat_angles_e'][k])),
-                                         args.angle_feat_size // 8)
+                            # he = np.tile(np.concatenate((odf['concat_angles_h'][k], odf['concat_angles_e'][k])),
+                            #              args.angle_feat_size // 8)
+                            he = odf['concat_angles'][k]
                             obs_dict['obj_d_feature'][k] = np.concatenate(
                                 (odf['concat_feature'][k], he))
             obs.append(obs_dict)

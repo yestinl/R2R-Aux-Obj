@@ -279,6 +279,7 @@ def read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_f
     sum_bbox = np.zeros(4)
     sum_e = np.zeros(4)
     sum_h = np.zeros(4)
+    sum_angle = np.zeros(128)
     obj_num = 0
     none_num = 0
     for n, (scanId, viewpointId) in enumerate(viewpointIds):
@@ -297,8 +298,11 @@ def read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_f
                 sum_feature += feat
                 assert bbox_feat[long_id]['concat_viewIndex']==obj_d_feat[long_id]['concat_viewIndex']
                 sum_bbox = bbox_feat[long_id]['concat_bbox'][i]
-                sum_e += obj_s_feat[long_id]['concat_angles_e'][i]
-                sum_h += obj_s_feat[long_id]['concat_angles_h'][i]
+
+
+
+                # sum_e += obj_s_feat[long_id]['concat_angles_e'][i]
+                # sum_h += obj_s_feat[long_id]['concat_angles_h'][i]
 
                 obj_num +=1
     avg_feature = sum_feature/obj_num
@@ -330,20 +334,22 @@ def read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_f
             #     txt = t[0]
             # else:
             #     txt = t[0] + ' ' + t[1]
+            angles = obj_rad2reg_feature(angles_h, angles_e)
             flag = 1
-            viewpoint_object.append({'bbox':bb,'angles_h': angles_h, 'angles_e': angles_e,'features': features,
+            viewpoint_object.append({'bbox':bb,'angles': angles,'features': features,
                                   'text': txt,'viewIndex': viewIndex,'prob': prob})
         if not flag and (th != 1):
-            viewpoint_object.append({'bbox':avg_b,'angles_h': avg_e, 'angles_e': avg_h, 'features': avg_feature,
+            viewpoint_object.append({'bbox':avg_b,'angles': np.zeros(128), 'features': avg_feature,
                                   'text': 'average', 'viewIndex': None, 'prob': None})
             none_num +=1
         if th == 1:
-            viewpoint_object.append({'bbox': np.zeros(4),'angles_h': np.zeros(4), 'angles_e': np.zeros(4),'features': np.zeros(2048),
+            viewpoint_object.append({'bbox': np.zeros(4),'angles': np.zeros(128),'features': np.zeros(2048),
                                      'text': 'zero', 'viewIndex': None, 'prob': None})
             none_num +=1
         num_obj = len(viewpoint_object)
-        concat_angles_h = np.zeros((num_obj, 4), np.float32)
-        concat_angles_e = np.zeros((num_obj, 4), np.float32)
+        # concat_angles_h = np.zeros((num_obj, 4), np.float32)
+        # concat_angles_e = np.zeros((num_obj, 4), np.float32)
+        concat_angles = np.zeros((num_obj, 128), np.float32)
         concat_bbox = np.zeros((num_obj, 4), np.float32)
         concat_dense_feature = np.zeros((num_obj, 2048))
         concat_text = [None] * num_obj
@@ -351,16 +357,18 @@ def read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, sparse_obj_f
         concat_prob = [None] * num_obj
         for n_obj, obj in enumerate(viewpoint_object):
             concat_bbox[n_obj] = obj['bbox']
-            concat_angles_h[n_obj] = obj['angles_h']
-            concat_angles_e[n_obj] = obj['angles_e']
+            # concat_angles_h[n_obj] = obj['angles_h']
+            # concat_angles_e[n_obj] = obj['angles_e']
+            concat_angles[n_obj] = obj['angles']
             concat_dense_feature[n_obj] = obj['features']
             concat_text[n_obj] = obj['text']
             concat_viewIndex[n_obj] = obj['viewIndex']
             concat_prob[n_obj] = obj['prob']
         objs[long_id] = {
             'concat_bbox': concat_bbox,
-            'concat_angles_h': concat_angles_h,
-            'concat_angles_e': concat_angles_e,
+            # 'concat_angles_h': concat_angles_h,
+            # 'concat_angles_e': concat_angles_e,
+            'concat_angles': concat_angles,
             'concat_feature': concat_dense_feature,
             'concat_text': concat_text,
             'concat_viewIndex': concat_viewIndex,
@@ -537,6 +545,17 @@ def angle_feature(heading, elevation):
     return np.array([math.sin(heading), math.cos(heading),
                      math.sin(elevation), math.cos(elevation)] * (args.angle_feat_size // 4),
                     dtype=np.float32)
+
+def obj_rad2reg_feature(heading, elevation):
+    import math
+    result = []
+    for h in heading:
+        result.append(math.sin(h))
+        result.append(math.cos(h))
+    for e in elevation:
+        result.append(math.sin(e))
+        result.append(math.cos(h))
+    return np.array(result*(args.angle_feat_size//16),dtype=np.float32)
 
 def new_simulator():
     import MatterSim
