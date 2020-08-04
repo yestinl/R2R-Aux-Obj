@@ -294,7 +294,7 @@ def read_obj_dense_features(dense_obj_feat1, dense_obj_feat2, bbox, th):
                 #     continue
                 sum_feature += feat
                 assert bbox_feat[long_id]['concat_viewIndex']==obj_d_feat[long_id]['concat_viewIndex']
-                sum_bbox = bbox_feat[long_id]['concat_bbox'][i]
+                sum_bbox += bbox_feat[long_id]['concat_bbox'][i]
                 # sum_e += obj_d_feat[long_id]['concat_angles_e'][i]
                 # sum_h += obj_d_feat[long_id]['concat_angles_h'][i]
 

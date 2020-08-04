@@ -100,7 +100,7 @@ class Param:
         self.parser.add_argument("--addRN", dest='addRN', action='store_const', default=False, const=True)
         self.parser.add_argument("--denseObj", dest='denseObj', action='store_const', default=False, const=True)
         self.parser.add_argument("--longCat", dest='longCat', action='store_const', default=False, const=True)
-        self.parser.add_argument("--objInputMode", type=str, default="tanh")  # tanh,sg,sm
+        self.parser.add_argument("--objInputMode", type=str, default="sg")  # tanh,sg,sm
         # self.parser.add_argument("--catAngleBbox", dest='catAngleBbox', action='store_const', default=False, const=True)
         self.parser.add_argument("--catfeat", type=str, default="none") # none,he,bbox,angle,bboxAngle
 
@@ -108,7 +108,7 @@ class Param:
         self.parser.add_argument("--multi", dest='multi', action='store_const', default=False, const=True)
         self.parser.add_argument("--multiNum", dest="multiNum", type=int, default=3)
 
-        # Multi
+        # Multi_head
         self.parser.add_argument("--headNum", dest="headNum", type=int, default=2)
         self.parser.add_argument("--multiMode", type=str, default="") # vis,can,ins
 
